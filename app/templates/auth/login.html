@@ -1,0 +1,33 @@
+{% extends 'layout.html' %}
+{% block content %}
+<section class="section">
+    <div class="container">
+        <h1 class="title is-1">로그인</h1>
+        <p class="subtitle">
+            <a href="/auth/password-reset">비밀번호를 잊으셨나요?</a>
+        </p>
+
+        <form method="post">
+            <div class="field">
+                <label class="label is-medium" for="email-input">이메일</label>
+                <div class="control">
+                    <input id="email-input" class="input is-large" type="email" name="email">
+                </div>
+            </div>
+
+            <div class="field">
+                <label class="label is-medium" for="password-input">비밀번호</label>
+                <div class="control">
+                    <input id="password-input" class="input is-large" type="password" name="password">
+                </div>
+            </div>
+
+            <div class="field">
+                <div class="control">
+                    <button class="button is-primary is-light is-large is-fullwidth" type="submit">다음</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}
