@@ -1,5 +1,6 @@
 from os import environ
 
+from flask import g
 from flask import Flask
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
@@ -22,5 +23,9 @@ def create_app():
     from . import views
     for view in views.__all__:
         app.register_blueprint(getattr(getattr(views, view), "bp"))
+
+    @app.before_request
+    def set_global():
+        g.title = environ['TITLE']
 
     return app
