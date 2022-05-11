@@ -6,7 +6,16 @@
         <p class="subtitle">
             <a href="/auth/password-reset">비밀번호를 잊으셨나요?</a>
         </p>
-
+    {% if error is not none %}
+        <div class="notification is-danger">
+            {{ error }}
+        </div>
+    {% endif %}
+    {% if message is not none %}
+        <div class="notification is-primary">
+            {{ message }}
+        </div>
+    {% endif %}
         <form method="post">
             <div class="field">
                 <label class="label is-medium" for="email-input">이메일</label>

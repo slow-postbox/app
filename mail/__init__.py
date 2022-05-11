@@ -9,9 +9,9 @@ SMTP_USER = environ['SMTP_USER']
 SMTP_PASSWORD = environ['SMTP_PASSWORD']
 
 
-def send_token(email, token, ip):
+def send_token(email: str, code: str, ip: str):
     html = "\n".join([
-        f"<h1>{token}</h1>",
+        f"<h1>{code}</h1>",
         f"<p>인증 코드는 3분후 만료됩니다.</p>",
         "<br>",
         "<br>",
@@ -19,8 +19,8 @@ def send_token(email, token, ip):
     ])
 
     payload = MIMEText(html, "html", "utf-8")
-    payload['From'] = f"\"{environ['TITLE']}\" <{SMTP_USER}>"
-    payload['Subject'] = "이메일 인증 코드"
+    payload['From'] = SMTP_USER
+    payload['Subject'] = f"{environ['TITLE']} - 이메일 인증 코드"
 
     with SMTP(SMTP_HOST, SMTP_PORT) as client:
         client.starttls()
@@ -34,7 +34,3 @@ def send_token(email, token, ip):
             to_addrs=[email],
             msg=payload.as_string()
         )
-
-
-def sendmail():
-    return

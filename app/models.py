@@ -77,11 +77,6 @@ class Code(db.Model):
         nullable=False
     )
 
-    owner_id = db.Column(
-        db.Integer,
-        db.ForeignKey("user.id")
-    )
-
     # xxxx-xxxx
     code = db.Column(
         db.String(9),
