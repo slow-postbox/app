@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ko">
+    <head>
+        <meta charset="utf-8">
+        <title>{{ g.title }}</title>
+        <meta name="author" content="chick_0">
+        <meta name="viewport" content="width=device-width,initial-scale=1.0">
+        <link rel="stylesheet" href="{{ url_for('static', filename='css/bulma.min.css') }}">
+    </head>
+    <body>
+        <nav class="navbar container">
+            <div class="navbar-brand">
+                <a class="navbar-item" href="/">{{ g.title }}</a>
+                <a role="button" class="navbar-burger" data-target="navbar">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </a>
+            </div>
+            <div id="navbar" class="navbar-menu">
+                <div class="navbar-start">
+                    <a class="navbar-item">
+                        편지 쓰기
+                    </a>
+                    <a class="navbar-item">
+                        이용 약관
+                    </a>
+                    <a class="navbar-item">
+                        개인정보 처리방침
+                    </a>
+                </div>
+                <div class="navbar-end">
+                    <div class="navbar-item">
+                        <div class="buttons">
+                            <a class="button is-primary">
+                                <strong>회원가입</strong>
+                            </a>
+                            <a class="button is-light">
+                                로그인
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        {% block content %}{% endblock %}
+        {% block script %}{% endblock %}
+    </body>
+</html>
