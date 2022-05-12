@@ -132,6 +132,7 @@ def sign_up_post():
 
     _ = [x for x in "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"]
     code = Code()
+    code.email = email
     code.code = "".join(choices(_, k=4) + ['-'] + choices(_, k=4))
     code.ip = get_ip()
 

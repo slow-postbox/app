@@ -77,6 +77,11 @@ class Code(db.Model):
         nullable=False
     )
 
+    email = db.Column(
+        db.String(96),
+        nullable=False
+    )
+
     # xxxx-xxxx
     code = db.Column(
         db.String(9),
