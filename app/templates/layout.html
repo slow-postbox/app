@@ -5,7 +5,10 @@
         <title>{{ g.title }}</title>
         <meta name="author" content="chick_0">
         <meta name="viewport" content="width=device-width,initial-scale=1.0">
-        <link rel="stylesheet" href="{{ url_for('static', filename='css/bulma.min.css') }}">
+        <link rel="stylesheet" href="/static/css/bulma.min.css">
+    {% if g.editor_css is true %}
+        <link rel="stylesheet" href="/static/css/toastui-editor.min.css">
+    {% endif %}
     </head>
     <body>
         <nav class="navbar container">
