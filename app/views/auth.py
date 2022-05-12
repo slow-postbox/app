@@ -3,6 +3,7 @@ from re import compile
 from random import choices
 from hashlib import sha512
 from datetime import datetime
+from datetime import timedelta
 
 from flask import Blueprint
 from flask import session
@@ -129,6 +130,15 @@ def sign_up_post():
 
     if user is not None:
         return error("이미 가입된 계정입니다.")
+
+    if Code.query.with_entities(Code.id).filter_by(
+        email=email,
+        used_date=None
+    ).filter(
+        # 만료되지 않은 코드
+        Code.creation_date >= datetime.now() - timedelta(minutes=3)
+    ).first() is not None:
+        return error("다른 세션에서 회원가입이 진행중인 이메일 계정 입니다.")
 
     _ = [x for x in "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"]
     code = Code()
