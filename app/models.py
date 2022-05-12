@@ -142,6 +142,11 @@ class Mail(db.Model):
         nullable=True,
     )
 
+    title = db.Column(
+        db.String(100),
+        nullable=False
+    )
+
     # max size = 20000
     content = db.Column(
         db.Text,
