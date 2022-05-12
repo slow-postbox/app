@@ -38,7 +38,7 @@ def create_app():
         g.title = environ['TITLE']
 
         # auth filter
-        if request.path.startswith("/auth"):
+        if request.path.startswith("/auth") and not request.path.endswith("logout"):
             if 'user' in session:
                 return redirect(url_for("dashboard.index"))
 

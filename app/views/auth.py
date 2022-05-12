@@ -22,6 +22,14 @@ bp = Blueprint("auth", __name__, url_prefix="/auth")
 re = compile(r'(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)')
 
 
+@bp.get("/logout")
+def logout():
+    for key in list(session.keys()):
+        del session[key]
+
+    return redirect(url_for("auth.login", message="로그아웃 되었습니다."))
+
+
 @bp.get("/login")
 def login():
     return render_template(
