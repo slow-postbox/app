@@ -1,0 +1,34 @@
+{% extends 'layout.html' %}
+{% block content %}
+<section class="section">
+    <div class="container">
+        <h1 class="title is-1">안녕하세요!</h1>
+        <p class="subtitle">마지막 로그인 : {{ user.last_login }}</p>
+
+        <div class="block">
+            <a class="button is-danger is-medium">회원 탈퇴</a>
+            <a class="button is-warning is-medium">로그인 기록 조회</a>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <h2 class="title is-2">작성한 편지</h2>
+        <p class="subtitle">우편함에 들어간 편지는 수정 할 수 없습니다.</p>
+        <div class="block">
+            <a class="button is-info is-medium">편지 쓰기</a>
+        </div>
+    {% for mail in mails %}
+        <div class="box" data-id="{{ mail.id }}">
+        {% if mail.lock is true %}
+            <h4 class="title is-4"><span class="tag is-delete">수정불가</span> {{ mail.title }}</h4>
+        {% else %}
+            <h4 class="title is-4"><span class="tag is-info">수정가능</span> {{ mail.title }}</h4>
+        {% endif %}
+            <p class="subtitle">{{ mail.creation_date }}</p>
+        </div>
+    {% endfor %}
+    </div>
+</section>
+{% endblock %}
