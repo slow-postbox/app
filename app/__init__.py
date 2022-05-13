@@ -44,7 +44,7 @@ def create_app():
 
     @app.errorhandler(404)
     @app.errorhandler(405)
-    def back_to_index():
+    def back_to_index(error):
         return redirect(url_for("index.index"))
 
     return app
