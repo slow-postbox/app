@@ -42,4 +42,9 @@ def create_app():
             if 'user' in session:
                 return redirect(url_for("dashboard.index"))
 
+    @app.errorhandler(404)
+    @app.errorhandler(405)
+    def back_to_index():
+        return redirect(url_for("index.index"))
+
     return app
