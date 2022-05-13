@@ -1,0 +1,26 @@
+{% extends 'layout.html' %}
+{% block content %}
+<section class="section">
+    <div class="container">
+        <h1 class="title is-1">로그인 기록</h1>
+        <p class="subtitle">로그인 기록은 1개월까지 보관됩니다.</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+    {% for history in histories %}
+        <div class="box">
+            <h4 class="title is-4">{{ history.creation_date }}</h4>
+            <div class="content block">
+                <p>요청 IP 주소 : {{ history.ip }}</p>
+
+            {% if history.id == session['user']['history_id'] %}
+                <blockquote>현재 세션 입니다.</blockquote>
+            {% endif %}
+            </div>
+        </div>
+    {% endfor %}
+    </div>
+</section>
+{% endblock %}

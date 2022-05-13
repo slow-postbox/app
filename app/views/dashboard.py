@@ -28,7 +28,16 @@ def index(user: User):
 @bp.get("/history")
 @login_required
 def history(user: User):
-    return
+    login_history = LoginHistory.query.filter_by(
+        owner_id=user.id,
+    ).order_by(
+        LoginHistory.id.desc()
+    ).all()
+
+    return render_template(
+        "dashboard/history.html",
+        histories=login_history,
+    )
 
 
 @bp.get("/quit-service")
