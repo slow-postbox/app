@@ -15,6 +15,8 @@ bp = Blueprint("dashboard", __name__, url_prefix="/dashboard")
 def index(user: User):
     mails = Mail.query.filter_by(
         owner_id=user.id
+    ).order_by(
+        Mail.id.desc()
     ).all()
 
     return render_template(
