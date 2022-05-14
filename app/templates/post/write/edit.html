@@ -9,13 +9,13 @@
             <div class="field">
                 <label class="label" for="title">제목</label>
                 <div class="control">
-                    <input id="title" class="input" type="text" required="required">
+                    <input id="title" class="input" type="text" required="required" value="{{ m.title }}">
                 </div>
             </div>
             <div class="field">
                 <label class="label" for="date">받을 날짜</label>
                 <div class="control">
-                    <input id="date" class="input" type="date" required="required" value="{{ date }}">
+                    <input id="date" class="input" type="date" required="required" value="{{ m.send_date }}">
                 </div>
             </div>
         </div>
@@ -26,14 +26,22 @@
 
         <div class="columns">
             <div class="column">
-                <button class="button is-primary is-large is-fullwidth">저장하기</button>
+                <button class="button is-primary is-large is-fullwidth" id="save">저장하기</button>
             </div>
             <div class="column">
-                 <button class="button is-danger is-large is-fullwidth">우체통에 넣기</button>
+                 <button class="button is-danger is-large is-fullwidth" id="send">우체통에 넣기</button>
             </div>
         </div>
     </div>
 </section>
+
+<textarea id="dummy" hidden="hidden">{{ m.content }}</textarea>
+<form id="sendForm" method="post">
+    <input type="text" name="title" hidden="hidden">
+    <input type="date" name="date" hidden="hidden">
+    <textarea name="content" hidden="hidden"></textarea>
+    <input type="text" name="lock" hidden="hidden">
+</form>
 {% endblock %}
 
 {% block script %}
@@ -44,6 +52,24 @@
         el: document.getElementById("editor"),
         height: '600px',
         initialEditType: 'wysiwyg',
+        initialValue: document.getElementById("dummy").value,
+    });
+
+    function fillForm(lock){
+        document.querySelector("input[name=title]").value = document.getElementById("title").value;
+        document.querySelector("input[name=date]").value = document.getElementById("date").value;
+        document.querySelector("textarea[name=content]").value = editor.getMarkdown();
+        document.querySelector("input[name=lock]").value = lock;
+        document.getElementById("sendForm").submit();
+    }
+
+    document.getElementById("save").addEventListener('click', () => {
+        fillForm('false');
+    });
+    document.getElementById("send").addEventListener('click', () => {
+        if(confirm("우체통에 들어간 편지는 수정 할 수 없습니다. 정말로 이 편지를 우체통에 넣으시겠습니까?")){
+            fillForm('true');
+        }
     });
 </script>
 {% endblock %}
