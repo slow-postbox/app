@@ -14,7 +14,7 @@ from app.models import Mail
 from app.utils import login_required
 from app.utils import fetch_mail
 
-bp = Blueprint("write", __name__, url_prefix="/write")
+bp = Blueprint("write", __name__, url_prefix="/")
 
 
 @bp.get("/create-new")
@@ -68,7 +68,7 @@ def create_new_post(user: User):
     return redirect(url_for("post.write.edit", mail_id=mail.id))
 
 
-@bp.get("/<int:mail_id>")
+@bp.get("/edit/<int:mail_id>")
 @login_required
 @fetch_mail
 def edit(user: User, mail: Mail, mail_id: int):
@@ -82,7 +82,7 @@ def edit(user: User, mail: Mail, mail_id: int):
     )
 
 
-@bp.post("/<int:mail_id>")
+@bp.post("/edit/<int:mail_id>")
 @login_required
 @fetch_mail
 def edit_post(user: User, mail: Mail, mail_id: int):
