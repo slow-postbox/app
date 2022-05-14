@@ -48,13 +48,6 @@ def create_new_post(user: User):
         # 기본 값은 작성일로부터 1년뒤
         send_date = (datetime.now() + timedelta(days=365)).strftime("%Y-%m-%d")
 
-    print(
-        send_date - datetime.now(),
-        send_date - datetime.now() > timedelta(days=365 + 15),
-        send_date > datetime.now(),
-        send_date < datetime.now(),
-    )
-
     mail = Mail()
     mail.owner_id = user.id
     mail.send_date = send_date
