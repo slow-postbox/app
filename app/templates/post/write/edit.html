@@ -15,7 +15,7 @@
             <div class="field">
                 <label class="label" for="date">받을 날짜</label>
                 <div class="control">
-                    <input id="date" class="input" type="date" required="required" value="{{ m.send_date }}">
+                    <input id="date" class="input" type="date" required="required" value="{{ m.send_date.strftime('%Y-%m-%d') }}">
                 </div>
             </div>
         </div>
