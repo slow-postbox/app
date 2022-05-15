@@ -45,6 +45,7 @@ def create_app():
     @app.after_request
     def after_request(response):
         response.headers['X-Frame-Options'] = "deny"
+        return response
 
     @app.errorhandler(404)
     @app.errorhandler(405)
