@@ -42,6 +42,10 @@ def create_app():
             if 'user' in session:
                 return redirect(url_for("dashboard.index"))
 
+    @app.after_request
+    def after_request(response):
+        response.headers['X-Frame-Options'] = "deny"
+
     @app.errorhandler(404)
     @app.errorhandler(405)
     def back_to_index(error):
