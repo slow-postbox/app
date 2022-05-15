@@ -13,7 +13,11 @@
     <body>
         <nav class="navbar container">
             <div class="navbar-brand">
+            {% if 'user' in session %}
+                <a class="navbar-item" href="/dashboard">{{ g.title }}</a>
+            {% else %}
                 <a class="navbar-item" href="/">{{ g.title }}</a>
+            {% endif %}
                 <a role="button" class="navbar-burger" data-target="navbar">
                     <span></span>
                     <span></span>
