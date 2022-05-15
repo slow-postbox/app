@@ -88,7 +88,11 @@ def create_new_post(user: User):
 @fetch_mail
 def edit(user: User, mail: Mail, mail_id: int):
     if mail.lock is True:
-        return "해당 편지는 수정할 수 없습니다."
+        return render_template(
+            "post/write/locked.html",
+            m=mail,
+            u=user
+        )
 
     g.editor_css = True
     return render_template(
@@ -102,7 +106,11 @@ def edit(user: User, mail: Mail, mail_id: int):
 @fetch_mail
 def edit_post(user: User, mail: Mail, mail_id: int):
     if mail.lock is True:
-        return "해당 편지는 수정할 수 없습니다."
+        return render_template(
+            "post/write/locked.html",
+            m=mail,
+            u=user
+        )
 
     error = []
 

@@ -1,0 +1,17 @@
+{% extends 'layout.html' %}
+{% block content %}
+<section class="section">
+    <div class="container">
+        <h1 class="title is-1">기다려주세요</h1>
+        <p class="subtitle">편지가 천천히 이동하고 있습니다.</p>
+
+        <div class="content is-medium">
+            <blockquote>
+                <p>해당 편지는 우체통으로 들어가 더 이상 수정 할 수 없습니다.</p>
+                <p>해당 편지는 <b>{{ m.send_date.strftime('%Y년 %m월 %d일') }}</b>에 이메일을 통해 전달될 예정입니다.</p>
+                <p>해당 편지가 전달된 주소는 <b>{{ u.email }}</b>입니다.</p>
+            </blockquote>
+        </div>
+    </div>
+</section>
+{% endblock %}
