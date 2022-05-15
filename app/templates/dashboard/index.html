@@ -22,9 +22,9 @@
     {% for mail in mails %}
         <div class="box" data-url="/post/edit/{{ mail.id }}">
         {% if mail.lock is true %}
-            <h4 class="title is-4"><span class="tag is-delete">수정불가</span> {{ mail.title }}</h4>
+            <h4 class="title is-4"><span class="tag is-danger">수정불가</span> {{ mail.title }}</h4>
         {% else %}
-            <h4 class="title is-4"><span class="tag is-info">수정가능</span> {{ mail.title }}</h4>
+            <h4 class="title is-4"><span class="tag is-primary">수정가능</span> {{ mail.title }}</h4>
         {% endif %}
             <p class="subtitle">{{ mail.creation_date }}</p>
         </div>
