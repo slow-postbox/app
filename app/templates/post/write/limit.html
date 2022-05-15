@@ -1,0 +1,15 @@
+{% extends 'layout.html' %}
+{% block content %}
+<section class="section">
+    <div class="container">
+        <h1 class="title is-1">새로운 편지</h1>
+
+        <div class="content is-medium">
+            <blockquote>
+                <p>한 사람당 작성 할 수 있는 편지의 개수는 <b>{{ limit }}개</b>입니다.</p>
+                <p>기존에 작성된 편지가 전달된 이후 새로운 편지를 작성해주세요.</p>
+            </blockquote>
+        </div>
+    </div>
+</section>
+{% endblock %}

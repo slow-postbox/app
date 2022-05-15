@@ -20,11 +20,21 @@ bp = Blueprint("write", __name__, url_prefix="/")
 MIN_DAYS = 7
 # 최대 1년하고 4주일
 MAX_DAYS = 365 + timedelta(weeks=4).days
+# 편지 개수 제한
+MAIL_LIMIT = 20
 
 
 @bp.get("/create-new")
 @login_required
 def create_new(user: User):
+    if Mail.query.filter_by(
+        owner_id=user.id
+    ).count() >= MAIL_LIMIT:
+        return render_template(
+            "post/write/limit.html",
+            limit=MAIL_LIMIT
+        )
+
     g.editor_css = True
     return render_template(
         "post/write/create-new.html",
@@ -35,6 +45,14 @@ def create_new(user: User):
 @bp.post("/create-new")
 @login_required
 def create_new_post(user: User):
+    if Mail.query.filter_by(
+        owner_id=user.id
+    ).count() >= MAIL_LIMIT:
+        return render_template(
+            "post/write/limit.html",
+            limit=MAIL_LIMIT
+        )
+
     def error(message):
         return redirect(url_for("post.write.create_new", error=message))
 
