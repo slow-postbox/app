@@ -18,6 +18,8 @@ from app.models import LoginHistory
 from app.models import Code
 from app.utils import get_ip
 from app.utils import login_block
+from app.utils import get_error_message
+from app.utils import set_error_message
 from mail import send_token
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
@@ -29,16 +31,21 @@ def logout():
     for key in list(session.keys()):
         del session[key]
 
-    return redirect(url_for("auth.login", message="로그아웃 되었습니다."))
+    return redirect(url_for("auth.login", message="logout"))
 
 
 @bp.get("/login")
 @login_block
 def login():
+    message = {
+        "logout": "로그아웃 되었습니다.",
+        "sign-up": "방금 가입한 계정으로 다시 로그인 해주세요."
+    }.get(request.args.get("message"), None)
+
     return render_template(
         "auth/login.html",
-        error=request.args.get("error", None),
-        message=request.args.get("message", None),
+        error=get_error_message(),
+        message=message,
     )
 
 
@@ -46,7 +53,8 @@ def login():
 @login_block
 def login_post():
     def error(message: str):
-        return redirect(url_for("auth.login", error=message))
+        error_id = set_error_message(message=message)
+        return redirect(url_for("auth.login", error=error_id))
 
     try:
         email = request.form['email'].strip()
@@ -105,7 +113,8 @@ def sign_up():
 @login_block
 def sign_up_post():
     def error(message: str):
-        return redirect(url_for("auth.sign_up", error=message))
+        error_id = set_error_message(message=message)
+        return redirect(url_for("auth.sign_up", error=error_id))
 
     if 'sign-up' in session:
         return redirect(url_for("auth.ready"))
@@ -185,6 +194,10 @@ def ready():
 @bp.post("/ready")
 @login_block
 def ready_post():
+    def error(message: str, endpoint: str = "auth.ready"):
+        error_id = set_error_message(message=message)
+        return redirect(url_for(endpoint, error=error_id))
+
     if 'sign-up' not in session:
         return redirect(url_for("auth.sign_up"))
 
@@ -196,17 +209,17 @@ def ready_post():
         ).first()
 
         if code is None:
-            return redirect(url_for("auth.ready", error="인증 코드가 올바르지 않습니다."))
+            return error("인증 코드가 올바르지 않습니다.")
     except KeyError:
-        return redirect(url_for("auth.ready", error="인증 코드를 입력해주세요."))
+        return error("인증 코드를 입력해주세요.")
 
     if code.is_expired():
         del session['sign-up']
-        return redirect(url_for("auth.sign_up", error="해당 인증 코드는 만료된 코드 입니다."))
+        return error("해당 인증 코드는 만료된 코드 입니다.", "auth.sign_up")
 
     if code.is_used():
         del session['sign-up']
-        return redirect(url_for("auth.sign_up", error="해당 인증 코드는 이미 사용된 코드입니다."))
+        return error("해당 인증 코드는 이미 사용된 코드입니다.", "auth.sign_up")
 
     code.used_date = datetime.now()
     db.session.commit()
@@ -219,7 +232,7 @@ def ready_post():
     db.session.commit()
 
     del session['sign-up']
-    return redirect(url_for("auth.login", message="방금 가입한 계정으로 다시 로그인 해주세요."))
+    return redirect(url_for("auth.login", message="sign-up"))
 
 
 @bp.get("/password-reset")
