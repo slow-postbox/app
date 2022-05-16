@@ -9,7 +9,7 @@ from app.models import User
 from app.models import Mail
 
 
-def get_ip():
+def get_ip() -> str:
     return request.headers.get("X-Forwarded-For", request.remote_addr)
 
 
