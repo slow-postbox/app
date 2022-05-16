@@ -27,8 +27,6 @@ def create_app():
         app.register_blueprint(getattr(getattr(views, view), "bp"))
 
     from flask import g
-    from flask import request
-    from flask import session
     from flask import redirect
     from flask import url_for
 
@@ -36,11 +34,6 @@ def create_app():
     def before_request():
         # set global
         g.title = environ['TITLE']
-
-        # auth filter
-        if request.path.startswith("/auth") and not request.path.endswith("logout"):
-            if 'user' in session:
-                return redirect(url_for("dashboard.index"))
 
     @app.after_request
     def after_request(response):
