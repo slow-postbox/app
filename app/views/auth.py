@@ -105,7 +105,7 @@ def sign_up():
 
     return render_template(
         "auth/sign-up.html",
-        error=request.args.get("error", None)
+        error=get_error_message()
     )
 
 
@@ -186,7 +186,7 @@ def ready():
 
     return render_template(
         "auth/ready.html",
-        error=request.args.get("error", None),
+        error=get_error_message(),
         email=environ['SMTP_USER'],
     )
 
