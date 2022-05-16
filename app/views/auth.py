@@ -17,6 +17,7 @@ from app.models import User
 from app.models import LoginHistory
 from app.models import Code
 from app.utils import get_ip
+from app.utils import login_block
 from mail import send_token
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
@@ -32,6 +33,7 @@ def logout():
 
 
 @bp.get("/login")
+@login_block
 def login():
     return render_template(
         "auth/login.html",
@@ -41,6 +43,7 @@ def login():
 
 
 @bp.post("/login")
+@login_block
 def login_post():
     def error(message: str):
         return redirect(url_for("auth.login", error=message))
@@ -87,6 +90,7 @@ def login_post():
 
 
 @bp.get("/sign-up")
+@login_block
 def sign_up():
     if 'sign-up' in session:
         return redirect(url_for("auth.ready"))
@@ -98,6 +102,7 @@ def sign_up():
 
 
 @bp.post("/sign-up")
+@login_block
 def sign_up_post():
     def error(message: str):
         return redirect(url_for("auth.sign_up", error=message))
@@ -165,6 +170,7 @@ def sign_up_post():
 
 
 @bp.get("/ready")
+@login_block
 def ready():
     if 'sign-up' not in session:
         return redirect(url_for("auth.sign_up"))
@@ -177,6 +183,7 @@ def ready():
 
 
 @bp.post("/ready")
+@login_block
 def ready_post():
     if 'sign-up' not in session:
         return redirect(url_for("auth.sign_up"))
@@ -216,6 +223,7 @@ def ready_post():
 
 
 @bp.get("/password-reset")
+@login_block
 def password_reset():
     return render_template(
         "auth/password-reset.html"
@@ -223,5 +231,6 @@ def password_reset():
 
 
 @bp.post("/password-reset")
+@login_block
 def password_reset_post():
     return

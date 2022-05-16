@@ -34,6 +34,17 @@ def login_required(f):
     return decorator
 
 
+def login_block(f):
+    @wraps(f)
+    def decorator(*args, **kwargs):
+        if 'user' in session:
+            return redirect(url_for("dashboard.index"))
+
+        return f(*args, **kwargs)
+
+    return decorator
+
+
 def fetch_mail(f):
     @wraps(f)
     def decorator(*args, **kwargs):
