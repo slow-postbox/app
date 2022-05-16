@@ -4,7 +4,11 @@
     <div class="container">
         <h1 class="title is-1">새로운 편지</h1>
         <p class="subtitle">우체통에 들어간 편지는 수정할 수 없습니다.</p>
-
+    {% if error is not none %}
+        <div class="notification is-danger">
+            {{ error }}
+        </div>
+    {% endif %}
         <div class="box">
             <div class="field">
                 <label class="label" for="title">제목</label>

@@ -13,6 +13,8 @@ from app.models import User
 from app.models import Mail
 from app.utils import login_required
 from app.utils import fetch_mail
+from app.utils import get_error_message
+from app.utils import set_error_message
 
 bp = Blueprint("write", __name__, url_prefix="/")
 
@@ -38,7 +40,8 @@ def create_new(user: User):
     g.editor_css = True
     return render_template(
         "post/write/create-new.html",
-        date=(datetime.now() + timedelta(days=365)).strftime("%Y-%m-%d")
+        date=(datetime.now() + timedelta(days=365)).strftime("%Y-%m-%d"),
+        error=get_error_message()
     )
 
 
@@ -54,7 +57,8 @@ def create_new_post(user: User):
         )
 
     def error(message):
-        return redirect(url_for("post.write.create_new", error=message))
+        error_id = set_error_message(message=message)
+        return redirect(url_for("post.write.create_new", error=error_id))
 
     try:
         content = request.form['content']
@@ -116,6 +120,7 @@ def edit(user: User, mail: Mail, mail_id: int):
     return render_template(
         "post/write/edit.html",
         m=mail,
+        error=get_error_message()
     )
 
 
@@ -135,7 +140,7 @@ def edit_post(user: User, mail: Mail, mail_id: int):
     try:
         title = request.form['title'].strip()
         if len(title) > 100:
-            error += "* 제목이 100자 보다 길 수 없습니다."
+            error.append("제목이 100자 보다 길 수 없습니다.")
         else:
             if len(title) == 0:
                 title = "제목 없는 편지"
@@ -179,7 +184,9 @@ def edit_post(user: User, mail: Mail, mail_id: int):
 
     db.session.commit()
 
-    # TODO:after safety error message
-    print(error)
+    if len(error) != 0:
+        error_id = set_error_message(message=error)
+        return redirect(url_for("post.write.edit", mail_id=mail_id, error=error_id))
 
+    # without error message
     return redirect(url_for("post.write.edit", mail_id=mail_id))
