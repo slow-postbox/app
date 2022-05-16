@@ -27,6 +27,7 @@ def create_app():
         app.register_blueprint(getattr(getattr(views, view), "bp"))
 
     from flask import g
+    from flask import session
     from flask import redirect
     from flask import url_for
 
@@ -43,6 +44,9 @@ def create_app():
     @app.errorhandler(404)
     @app.errorhandler(405)
     def back_to_index(error):
+        if 'user' in session:
+            return redirect(url_for("dashboard.index"))
+
         return redirect(url_for("index.index"))
 
     return app
