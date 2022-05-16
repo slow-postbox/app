@@ -37,6 +37,22 @@ class User(db.Model):
         default=func.now()
     )
 
+    tos = db.Column(
+        db.Integer,
+        nullable=False,
+    )
+
+    privacy = db.Column(
+        db.Integer,
+        nullable=False,
+    )
+
+    admin = db.Column(
+        db.Boolean,
+        nullable=False,
+        default=False
+    )
+
     def __repr__(self):
         return f"<User id={self.id} email={self.email!r}>"
 
@@ -157,9 +173,83 @@ class Mail(db.Model):
     # False = Read, Write
     lock = db.Column(
         db.Boolean,
-        nullable=True,
+        nullable=False,
         default=False
     )
 
     def __repr__(self):
         return f"<Mail id={self.id} owner_id={self.owner_id}>"
+
+
+class Notice(db.Model):
+    id = db.Column(
+        db.Integer,
+        unique=True,
+        primary_key=True,
+        nullable=False
+    )
+
+    creation_date = db.Column(
+        db.DateTime,
+        nullable=False,
+        default=func.now()
+    )
+
+    title = db.Column(
+        db.String(100),
+        nullable=False
+    )
+
+    content = db.Column(
+        db.Text,
+        nullable=False,
+    )
+
+    def __repr__(self):
+        return f"<Notice id={self.id} title={self.title!r}>"
+
+
+class TermsOfService(db.Model):
+    id = db.Column(
+        db.Integer,
+        unique=True,
+        primary_key=True,
+        nullable=False
+    )
+
+    creation_date = db.Column(
+        db.DateTime,
+        nullable=False,
+        default=func.now()
+    )
+
+    content = db.Column(
+        db.Text,
+        nullable=False,
+    )
+
+    def __repr__(self):
+        return f"<TermsOfService id={self.id} title={self.title!r}>"
+
+
+class PrivacyPolicy(db.Model):
+    id = db.Column(
+        db.Integer,
+        unique=True,
+        primary_key=True,
+        nullable=False
+    )
+
+    creation_date = db.Column(
+        db.DateTime,
+        nullable=False,
+        default=func.now()
+    )
+
+    content = db.Column(
+        db.Text,
+        nullable=False,
+    )
+
+    def __repr__(self):
+        return f"<PrivacyPolicy id={self.id} title={self.title!r}>"

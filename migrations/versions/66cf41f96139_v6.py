@@ -1,8 +1,8 @@
-"""v5
+"""v6
 
-Revision ID: e427a2fdcea2
+Revision ID: 66cf41f96139
 Revises: 
-Create Date: 2022-05-12 22:52:46.014831
+Create Date: 2022-05-17 00:49:04.619598
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'e427a2fdcea2'
+revision = '66cf41f96139'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -28,12 +28,37 @@ def upgrade():
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('id')
     )
+    op.create_table('notice',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('creation_date', sa.DateTime(), nullable=False),
+    sa.Column('title', sa.String(length=100), nullable=False),
+    sa.Column('content', sa.Text(), nullable=False),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('id')
+    )
+    op.create_table('privacy_policy',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('creation_date', sa.DateTime(), nullable=False),
+    sa.Column('content', sa.Text(), nullable=False),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('id')
+    )
+    op.create_table('terms_of_service',
+    sa.Column('id', sa.Integer(), nullable=False),
+    sa.Column('creation_date', sa.DateTime(), nullable=False),
+    sa.Column('content', sa.Text(), nullable=False),
+    sa.PrimaryKeyConstraint('id'),
+    sa.UniqueConstraint('id')
+    )
     op.create_table('user',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('email', sa.String(length=96), nullable=False),
     sa.Column('password', sa.String(length=128), nullable=False),
     sa.Column('creation_date', sa.DateTime(), nullable=False),
     sa.Column('last_login', sa.DateTime(), nullable=False),
+    sa.Column('tos', sa.Integer(), nullable=False),
+    sa.Column('privacy', sa.Integer(), nullable=False),
+    sa.Column('admin', sa.Boolean(), nullable=False),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('email'),
     sa.UniqueConstraint('id')
@@ -54,7 +79,7 @@ def upgrade():
     sa.Column('send_date', sa.DateTime(), nullable=True),
     sa.Column('title', sa.String(length=100), nullable=False),
     sa.Column('content', sa.Text(), nullable=False),
-    sa.Column('lock', sa.Boolean(), nullable=True),
+    sa.Column('lock', sa.Boolean(), nullable=False),
     sa.ForeignKeyConstraint(['owner_id'], ['user.id'], ),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('id')
@@ -67,5 +92,8 @@ def downgrade():
     op.drop_table('mail')
     op.drop_table('login_history')
     op.drop_table('user')
+    op.drop_table('terms_of_service')
+    op.drop_table('privacy_policy')
+    op.drop_table('notice')
     op.drop_table('code')
     # ### end Alembic commands ###
