@@ -44,6 +44,7 @@ def login_required(f):
         ).first()
 
         if user is None:
+            del session['user']
             error_id = set_error_message(message="삭제된 계정입니다.")
             return redirect(url_for("auth.sign_up", error=error_id))
 
