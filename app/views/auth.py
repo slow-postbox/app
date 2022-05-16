@@ -20,7 +20,7 @@ from app.utils import get_ip
 from mail import send_token
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
-re = compile(r'(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)')
+re = compile(r'(^[a-zA-Z\d_.+-]+@[a-zA-Z\d-]+\.[a-zA-Z\d-.]+$)')
 
 
 @bp.get("/logout")
