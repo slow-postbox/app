@@ -1,4 +1,34 @@
 {% extends 'layout.html' %}
 {% block content %}
+<section class="section">
+    <div class="container">
+        <h1 class="title is-1">공지사항</h1>
+    {% if session['admin'] is true %}
+        <div class="block">
+            <a class="button is-warning is-large" href="/notice/create-new">새로운 공지 작성</a>
+        </div>
+    {% endif %}
+    </div>
+</section>
 
+<section class="section">
+    <div class="container">
+    {% for notice in notices %}
+        <div class="box" data-url="/notice/{{ notice.id }}">
+            <h4 class="title is-4">{{ notice.title }}</h4>
+            <p class="subtitle">{{ notice.creation_date }}</p>
+        </div>
+    {% endfor %}
+    </div>
+</section>
+{% endblock %}
+
+{% block script %}
+<script>
+    document.querySelectorAll("div.box").forEach((element) => {
+	    element.addEventListener('click', () => {
+            location.href = element.dataset.url;
+	    });
+    });
+</script>
 {% endblock %}

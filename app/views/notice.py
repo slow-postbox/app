@@ -19,7 +19,14 @@ bp = Blueprint("notice", __name__, url_prefix="/notice")
 
 @bp.get("")
 def show_list():
-    return
+    notices = Notice.query.order_by(
+        Notice.id.desc()
+    ).all()
+
+    return render_template(
+        "notice/show_list.html",
+        notices=notices
+    )
 
 
 @bp.get("/<int:notice_id>")
