@@ -2,8 +2,23 @@ from datetime import datetime
 from datetime import timedelta
 
 from sqlalchemy import func
+from mistune import create_markdown
 
 from app import db
+
+
+def get_html(text: str) -> str:
+    _ = create_markdown(
+        escape=False,
+        renderer="html",
+        plugins=[
+            'strikethrough',
+            'footnotes',
+            'table',
+            'task_lists',
+        ]
+    )
+    return _(text)
 
 
 class User(db.Model):
@@ -177,6 +192,10 @@ class Mail(db.Model):
         default=False
     )
 
+    @property
+    def html(self) -> str:
+        return get_html(text=self.content)
+
     def __repr__(self):
         return f"<Mail id={self.id} owner_id={self.owner_id}>"
 
@@ -205,6 +224,10 @@ class Notice(db.Model):
         nullable=False,
     )
 
+    @property
+    def html(self) -> str:
+        return get_html(text=self.content)
+
     def __repr__(self):
         return f"<Notice id={self.id} title={self.title!r}>"
 
@@ -228,6 +251,10 @@ class TermsOfService(db.Model):
         nullable=False,
     )
 
+    @property
+    def html(self) -> str:
+        return get_html(text=self.content)
+
     def __repr__(self):
         return f"<TermsOfService id={self.id} title={self.title!r}>"
 
@@ -250,6 +277,10 @@ class PrivacyPolicy(db.Model):
         db.Text,
         nullable=False,
     )
+
+    @property
+    def html(self) -> str:
+        return get_html(text=self.content)
 
     def __repr__(self):
         return f"<PrivacyPolicy id={self.id} title={self.title!r}>"
