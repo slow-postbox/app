@@ -6,3 +6,5 @@ mysqlclient
 python-dotenv
 
 waitress
+
+mistune
