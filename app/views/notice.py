@@ -104,3 +104,16 @@ def edit_post(user: User, notice: Notice, notice_id: int):
     db.session.commit()
 
     return redirect(url_for("notice.edit", notice_id=notice_id))
+
+
+@bp.get("/delete/<int:notice_id>")
+@login_required
+@admin_only
+def delete(user: User, notice_id: int):
+    Notice.query.filter_by(
+        id=notice_id
+    ).delete()
+
+    db.session.commit()
+
+    return redirect(url_for("notice.show_list"))

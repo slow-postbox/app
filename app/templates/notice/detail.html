@@ -5,8 +5,9 @@
         <h1 class="title is-1">{{ notice.title }}</h1>
         <p class="subtitle">{{ notice.creation_date }}</p>
     {% if session['admin'] is true %}
-        <div class="block">
+        <div class="block buttons">
             <a class="button is-warning is-large" href="/notice/edit/{{ notice.id }}">공지 수정</a>
+            <a class="button is-danger is-large" href="/notice/delete/{{ notice.id }}">공지 삭제</a>
         </div>
     {% endif %}
     </div>
