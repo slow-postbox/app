@@ -1,0 +1,28 @@
+{% extends 'layout.html' %}
+{% block content %}
+<section class="section">
+    <div class="container">
+        <h1 class="title is-1">{{ notice.title }}</h1>
+        <p class="subtitle">{{ notice.creation_date }}</p>
+    {% if session['admin'] is true %}
+        <div class="block">
+            <a class="button is-warning is-large" href="/notice/edit/{{ notice.id }}">공지 수정</a>
+        </div>
+    {% endif %}
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="content is-medium">
+            {{ notice.content }}
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <a class="button is-link is-large is-fullwidth">공지 목록으로 돌아가기</a>
+    </div>
+</section>
+{% endblock %}

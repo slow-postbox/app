@@ -9,6 +9,7 @@ from flask import url_for
 from app.models import User
 from app.models import LoginHistory
 from app.models import Mail
+from app.models import Notice
 
 
 def get_ip() -> str:
@@ -61,7 +62,21 @@ def login_required(f):
             error_id = set_error_message(message="로그인 기록이 없는 세션입니다.")
             return redirect(url_for("auth.login", error=error_id))
 
+        session['admin'] = user.admin
+
         kwargs.update({"user": user})
+        return f(*args, **kwargs)
+
+    return decorator
+
+
+def admin_only(f):
+    @wraps(f)
+    def decorator(*args, **kwargs):
+        user = kwargs.get("user")
+        if not user.admin:
+            return "권한이 부족합니다."
+
         return f(*args, **kwargs)
 
     return decorator
@@ -93,6 +108,21 @@ def fetch_mail(f):
             mail = None
 
         kwargs.update({"mail": mail})
+        return f(*args, **kwargs)
+
+    return decorator
+
+
+def fetch_notice(f):
+    @wraps(f)
+    def decorator(*args, **kwargs):
+        notice_id = kwargs.get("notice_id")
+
+        notice = Notice.query.filter_by(
+            id=notice_id
+        ).first()
+
+        kwargs.update({"notice": notice})
         return f(*args, **kwargs)
 
     return decorator

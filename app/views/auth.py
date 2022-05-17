@@ -227,6 +227,11 @@ def ready_post():
     user = User()
     user.email = session['sign-up']['email']
     user.password = session['sign-up']['password']
+    user.admin = False
+
+    # TODO:set tos/privacy version
+    user.tos = 1
+    user.privacy = 1
 
     db.session.add(user)
     db.session.commit()

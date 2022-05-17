@@ -1,0 +1,53 @@
+{% extends 'layout.html' %}
+{% block content %}
+<section class="section">
+    <div class="container">
+        <h1 class="title is-1">공지 작성</h1>
+    {% if error is not none %}
+        <div class="notification is-danger">
+            {{ error }}
+        </div>
+    {% endif %}
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="field">
+            <label class="label is-medium" for="title">제목</label>
+            <div class="control">
+                <input id="title" class="input is-large" type="text">
+            </div>
+        </div>
+
+        <div class="block">
+            <div id="editor"></div>
+        </div>
+
+        <button class="button is-primary is-large is-fullwidth" id="save">저장하기</button>
+    </div>
+</section>
+
+<form id="sendForm" method="post">
+    <input type="text" name="title" hidden="hidden">
+    <textarea name="content" hidden="hidden"></textarea>
+</form>
+{% endblock %}
+
+{% block script %}
+<script src="/static/js/toastui-editor-all.min.js"></script>
+<script>
+    const Editor = toastui.Editor;
+    const editor = new Editor({
+        el: document.getElementById("editor"),
+        height: '600px',
+        initialEditType: 'wysiwyg',
+    });
+
+    document.getElementById("save").addEventListener('click', () => {
+        document.querySelector("input[name=title]").value = document.getElementById("title").value;
+        document.querySelector("textarea[name=content]").value = editor.getMarkdown();
+        document.getElementById("sendForm").submit();
+    });
+</script>
+{% endblock %}
