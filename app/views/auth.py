@@ -20,7 +20,7 @@ from app.utils import get_ip
 from app.utils import login_block
 from app.utils import get_error_message
 from app.utils import set_error_message
-from mail import send_token
+from mail.utils import send_token
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
 re = compile(r'(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)')

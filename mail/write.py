@@ -33,13 +33,13 @@ def create_new(user: User):
         owner_id=user.id
     ).count() >= MAIL_LIMIT:
         return render_template(
-            "post/write/limit.html",
+            "mail/write/limit.html",
             limit=MAIL_LIMIT
         )
 
     g.editor_css = True
     return render_template(
-        "post/write/create-new.html",
+        "mail/write/create-new.html",
         date=(datetime.now() + timedelta(days=365)).strftime("%Y-%m-%d"),
         error=get_error_message()
     )
@@ -52,13 +52,13 @@ def create_new_post(user: User):
         owner_id=user.id
     ).count() >= MAIL_LIMIT:
         return render_template(
-            "post/write/limit.html",
+            "mail/write/limit.html",
             limit=MAIL_LIMIT
         )
 
     def error(message):
         error_id = set_error_message(message=message)
-        return redirect(url_for("post.write.create_new", error=error_id))
+        return redirect(url_for("mail.write.create_new", error=error_id))
 
     try:
         content = request.form['content']
@@ -102,7 +102,7 @@ def create_new_post(user: User):
     db.session.add(mail)
     db.session.commit()
 
-    return redirect(url_for("post.write.edit", mail_id=mail.id))
+    return redirect(url_for("mail.write.edit", mail_id=mail.id))
 
 
 @bp.get("/edit/<int:mail_id>")
@@ -111,14 +111,14 @@ def create_new_post(user: User):
 def edit(user: User, mail: Mail, mail_id: int):
     if mail.lock is True:
         return render_template(
-            "post/write/locked.html",
+            "mail/write/locked.html",
             m=mail,
             u=user
         )
 
     g.editor_css = True
     return render_template(
-        "post/write/edit.html",
+        "mail/write/edit.html",
         m=mail,
         error=get_error_message()
     )
@@ -130,7 +130,7 @@ def edit(user: User, mail: Mail, mail_id: int):
 def edit_post(user: User, mail: Mail, mail_id: int):
     if mail.lock is True:
         return render_template(
-            "post/write/locked.html",
+            "mail/write/locked.html",
             m=mail,
             u=user
         )
@@ -186,7 +186,7 @@ def edit_post(user: User, mail: Mail, mail_id: int):
 
     if len(error) != 0:
         error_id = set_error_message(message=error)
-        return redirect(url_for("post.write.edit", mail_id=mail_id, error=error_id))
+        return redirect(url_for("mail.write.edit", mail_id=mail_id, error=error_id))
 
     # without error message
-    return redirect(url_for("post.write.edit", mail_id=mail_id))
+    return redirect(url_for("mail.write.edit", mail_id=mail_id))

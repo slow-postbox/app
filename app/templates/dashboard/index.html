@@ -17,10 +17,10 @@
         <h2 class="title is-2">작성한 편지</h2>
         <p class="subtitle">우체통에 들어간 편지는 수정 할 수 없습니다.</p>
         <div class="block">
-            <a class="button is-info is-medium" href="/post/create-new">편지 쓰기</a>
+            <a class="button is-info is-medium" href="/mail/create-new">편지 쓰기</a>
         </div>
     {% for mail in mails %}
-        <div class="box" data-url="/post/edit/{{ mail.id }}">
+        <div class="box" data-url="/mail/edit/{{ mail.id }}">
         {% if mail.lock is true %}
             <h4 class="title is-4"><span class="tag is-danger">수정불가</span> {{ mail.title }}</h4>
         {% else %}
