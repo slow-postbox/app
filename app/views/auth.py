@@ -16,6 +16,8 @@ from app import db
 from app.models import User
 from app.models import LoginHistory
 from app.models import Code
+from app.models import TermsOfService
+from app.models import PrivacyPolicy
 from app.utils import get_ip
 from app.utils import login_block
 from app.utils import get_error_message
@@ -79,6 +81,26 @@ def login_post():
     if user is None:
         return error("이메일 또는 비밀번호가 올바르지 않습니다.")
 
+    tos = TermsOfService.query.order_by(
+        TermsOfService.id.desc()
+    ).with_entities(
+        TermsOfService.id,
+    ).first()
+
+    if tos.id != user.tos:
+        # TODO:update tos version update
+        return "bad tos version"
+
+    privacy = PrivacyPolicy.query.order_by(
+        PrivacyPolicy.id.desc()
+    ).with_entities(
+        PrivacyPolicy.id,
+    ).first()
+
+    if privacy.id != user.privacy:
+        # TODO:update privacy version update
+        return "bad privacy version"
+
     # update last login
     user.last_login = datetime.now()
     # create login history
@@ -103,9 +125,27 @@ def sign_up():
     if 'sign-up' in session:
         return redirect(url_for("auth.ready"))
 
+    tos = TermsOfService.query.order_by(
+        TermsOfService.id.desc()
+    ).first()
+
+    privacy = PrivacyPolicy.query.order_by(
+        PrivacyPolicy.id.desc()
+    ).first()
+
+    if tos is None or privacy is None:
+        return "서비스 이용약관과 개인정보 처리방침이 등록되지 않아 회원가입을 진행 할 수 없습니다."
+
+    session['sign-up-version'] = {
+        "tos": tos.id,
+        "privacy": privacy.id
+    }
+
     return render_template(
         "auth/sign-up.html",
-        error=get_error_message()
+        error=get_error_message(),
+        tos=tos,
+        privacy=privacy,
     )
 
 
@@ -118,6 +158,15 @@ def sign_up_post():
 
     if 'sign-up' in session:
         return redirect(url_for("auth.ready"))
+
+    tos_agree = request.form.get("tos_agree", None) == "on"
+    privacy_agree = request.form.get("privacy_agree", None) == "on"
+
+    if tos_agree is False:
+        return error("서비스 이용약관에 동의해야 서비스를 이용 할 수 있습니다.")
+
+    if privacy_agree is False:
+        return error("개인정보 처리방침에 동의해야 서비스를 이용 할 수 있습니다.")
 
     try:
         email = request.form['email'].strip()
@@ -229,9 +278,9 @@ def ready_post():
     user.password = session['sign-up']['password']
     user.admin = False
 
-    # TODO:set tos/privacy version
-    user.tos = 1
-    user.privacy = 1
+    user.tos = session['sign-up-version']['tos']
+    user.privacy = session['sign-up-version']['privacy']
+    del session['sign-up-version']
 
     db.session.add(user)
     db.session.commit()
