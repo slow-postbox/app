@@ -107,6 +107,10 @@ def fetch_mail(f):
         else:
             mail = None
 
+        if mail is None:
+            error_id = set_error_message(message="해당 편지를 찾을 수 없습니다.")
+            return redirect(url_for("dashboard.index", error=error_id))
+
         kwargs.update({"mail": mail})
         return f(*args, **kwargs)
 
@@ -121,6 +125,10 @@ def fetch_notice(f):
         notice = Notice.query.filter_by(
             id=notice_id
         ).first()
+
+        if notice is None:
+            error_id = set_error_message(message="해당 공지를 찾을 수 없습니다.")
+            return redirect(url_for("notice.show_all", error=error_id))
 
         kwargs.update({"notice": notice})
         return f(*args, **kwargs)

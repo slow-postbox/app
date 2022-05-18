@@ -25,7 +25,8 @@ def show_all():
 
     return render_template(
         "notice/show-all.html",
-        notices=notices
+        notices=notices,
+        error=get_error_message()
     )
 
 

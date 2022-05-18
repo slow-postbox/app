@@ -5,6 +5,7 @@ from app import db
 from app.models import User
 from app.models import LoginHistory
 from app.models import Mail
+from app.utils import get_error_message
 from app.utils import login_required
 
 bp = Blueprint("dashboard", __name__, url_prefix="/dashboard")
@@ -24,6 +25,7 @@ def index(user: User):
         user=user,
         mails=mails,
         mail_count=len(mails),
+        error=get_error_message()
     )
 
 

@@ -3,6 +3,11 @@
 <section class="section">
     <div class="container">
         <h1 class="title is-1">공지사항</h1>
+    {% if error is not none %}
+        <div class="notification is-danger">
+            {{ error }}
+        </div>
+    {% endif %}
     {% if session['admin'] is true %}
         <div class="block">
             <a class="button is-warning is-large" href="/notice/create-new">새로운 공지 작성</a>
