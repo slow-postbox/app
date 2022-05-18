@@ -1,0 +1,51 @@
+{% extends 'layout.html' %}
+{% block content %}
+<section class="section">
+    <div class="container">
+        <h1 class="title is-1">서비스 이용약관 수정</h1>
+    {% if error is not none %}
+        <div class="notification is-danger">
+            {{ error }}
+        </div>
+    {% endif %}
+        <div class="block buttons">
+            <a class="button is-info is-large" href="/tos/{{ tos.id }}">약관으로 이동</a>
+            <a class="button is-danger is-large" href="/tos/delete/{{ tos.id }}">약관 삭제</a>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="block">
+            <div id="editor"></div>
+        </div>
+
+        <button class="button is-primary is-large is-fullwidth" id="save">저장하기</button>
+    </div>
+</section>
+
+<textarea id="initValue" hidden="hidden">{{ tos.content }}</textarea>
+
+<form id="sendForm" method="post">
+    <textarea name="content" hidden="hidden"></textarea>
+</form>
+{% endblock %}
+
+{% block script %}
+<script src="/static/js/toastui-editor-all.min.js"></script>
+<script>
+    const Editor = toastui.Editor;
+    const editor = new Editor({
+        el: document.getElementById("editor"),
+        height: '600px',
+        initialEditType: 'wysiwyg',
+        initialValue: document.getElementById("initValue").value,
+    });
+
+    document.getElementById("save").addEventListener('click', () => {
+        document.querySelector("textarea[name=content]").value = editor.getMarkdown();
+        document.getElementById("sendForm").submit();
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,51 @@
+{% extends 'layout.html' %}
+{% block content %}
+<section class="section">
+    <div class="container">
+        <h1 class="title is-1">개인정보 처리방침</h1>
+    {% if error is not none %}
+        <div class="notification is-danger">
+            {{ error }}
+        </div>
+    {% endif %}
+    {% if session['admin'] is true %}
+        <div class="block buttons">
+            <a class="button is-primary is-large" href="/privacy/create-new">생성</a>
+            <a class="button is-warning is-large" href="/privacy/edit/{{ privacy.id }}">수정</a>
+            <a class="button is-danger is-large" href="/privacy/delete/{{ privacy.id }}">삭제</a>
+        </div>
+    {% endif %}
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="content is-medium">
+            {{ privacy.html|safe }}
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+    {% for _privacy in pp %}
+        <div class="box" data-url="/privacy/{{ _privacy.id }}">
+            <h5 class="title is-5">{{ _privacy.creation_date.strftime("%Y-%m-%d") }}</h5>
+        {% if _privacy.id == privacy.id %}
+            <p class="subtitle">지금 보고있는 처리방침 입니다.</p>
+        {% endif %}
+        </div>
+    {% endfor %}
+    </div>
+</section>
+{% endblock %}
+
+{% block script %}
+<script>
+    document.querySelectorAll("div.box").forEach((element) => {
+	    element.addEventListener('click', () => {
+            location.href = element.dataset.url;
+	    });
+    });
+</script>
+{% endblock %}

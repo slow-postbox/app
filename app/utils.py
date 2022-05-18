@@ -10,6 +10,8 @@ from app.models import User
 from app.models import LoginHistory
 from app.models import Mail
 from app.models import Notice
+from app.models import TermsOfService
+from app.models import PrivacyPolicy
 
 
 def get_ip() -> str:
@@ -131,6 +133,44 @@ def fetch_notice(f):
             return redirect(url_for("notice.show_all", error=error_id))
 
         kwargs.update({"notice": notice})
+        return f(*args, **kwargs)
+
+    return decorator
+
+
+def fetch_tos(f):
+    @wraps(f)
+    def decorator(*args, **kwargs):
+        tos_id = kwargs.get("tos_id")
+
+        tos = TermsOfService.query.filter_by(
+            id=tos_id
+        ).first()
+
+        if tos is None:
+            error_id = set_error_message(message="올바른 서비스 이용약관 버전이 아닙니다.")
+            return redirect(url_for("tos.latest", error=error_id))
+
+        kwargs.update({"tos": tos})
+        return f(*args, **kwargs)
+
+    return decorator
+
+
+def fetch_privacy(f):
+    @wraps(f)
+    def decorator(*args, **kwargs):
+        privacy_id = kwargs.get("privacy_id")
+
+        privacy = PrivacyPolicy.query.filter_by(
+            id=privacy_id
+        ).first()
+
+        if privacy is None:
+            error_id = set_error_message(message="올바른 개인정보 처리방침 버전이 아닙니다.")
+            return redirect(url_for("privacy.latest", error=error_id))
+
+        kwargs.update({"privacy": privacy})
         return f(*args, **kwargs)
 
     return decorator

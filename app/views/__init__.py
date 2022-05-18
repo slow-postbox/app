@@ -4,6 +4,8 @@ __all__ = [
     "index",
     "mail",
     "notice",
+    "privacy",
+    "tos",
 ]
 
 from . import *
