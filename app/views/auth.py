@@ -11,6 +11,7 @@ from flask import request
 from flask import redirect
 from flask import url_for
 from flask import render_template
+from sqlalchemy.exc import IntegrityError
 
 from app import db
 from app.models import User
@@ -282,8 +283,12 @@ def ready_post():
     user.privacy = session['sign-up-version']['privacy']
     del session['sign-up-version']
 
-    db.session.add(user)
-    db.session.commit()
+    try:
+        db.session.add(user)
+        db.session.commit()
+    except IntegrityError:
+        del session['sign-up']
+        return error("해당 이메일 주소는 다른 세션에서 회원가입이 완료되었습니다.", "auth.login")
 
     del session['sign-up']
     return redirect(url_for("auth.login", message="sign-up"))
