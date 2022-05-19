@@ -6,7 +6,7 @@
         <p class="subtitle">우체통에 들어간 편지는 수정할 수 없습니다.</p>
     {% if error is not none %}
         <div class="notification is-danger">
-            {{ error }}
+            {{ error|safe }}
         </div>
     {% endif %}
         <div class="box">

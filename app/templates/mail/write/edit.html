@@ -7,7 +7,7 @@
     {% if error is not none %}
         <div class="notification is-danger">
         {% for e in error %}
-            <p><b>-</b> {{ e }}</p>
+            <p><b>-</b> {{ e|safe }}</p>
         {% endfor %}
         </div>
     {% endif %}

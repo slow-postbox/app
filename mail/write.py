@@ -72,6 +72,16 @@ def create_new_post(user: User):
         # 편지를 보낼 날짜를 불러옴
         send_date = datetime.strptime(request.form['date'], "%Y-%m-%d")
 
+        # 같은 요일에 보내는 편지를 작성한 적이 있다면 거부
+        test = Mail.query.filter_by(
+            owner_id=user.id,
+            send_date=send_date
+        ).first()
+
+        if test is not None:
+            date = send_date.strftime("%Y년 %m월 %d일")
+            return error(f"<b>{date}</b>로 보내는 편지가 이미 있습니다.")
+
         # 기준 날짜 = 오늘 날짜
         days = (send_date - datetime.today()).days + 1
 
@@ -164,6 +174,19 @@ def edit_post(user: User, mail: Mail, mail_id: int):
     try:
         # 편지를 보낼 날짜를 불러옴
         send_date = datetime.strptime(request.form['date'], "%Y-%m-%d")
+
+        # 같은 요일에 보내는 편지를 작성한 적이 있다면 거부
+        test = Mail.query.filter_by(
+            owner_id=mail.owner_id,
+            send_date=send_date
+        ).filter(
+            Mail.id != mail.id
+        ).first()
+
+        if test is not None:
+            date = send_date.strftime("%Y년 %m월 %d일")
+            error.append(f"<b>{date}</b>로 보내는 편지가 이미 있습니다.")
+            raise ValueError("skip this request!")
 
         # 기준 날짜 = 편지 생성 날짜
         days = (send_date - mail.creation_date).days + 1
