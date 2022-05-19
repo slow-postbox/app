@@ -11,6 +11,7 @@ from flask import render_template
 from app import db
 from app.models import User
 from app.models import Mail
+from app.utils import login_after
 from app.utils import login_required
 from app.utils import fetch_mail
 from app.utils import get_error_message
@@ -38,6 +39,7 @@ def check_date_limit(date: datetime) -> bool:
 
 
 @bp.get("/create-new")
+@login_after('mail.write.create_new')
 @login_required
 def create_new(user: User):
     if Mail.query.filter_by(
@@ -57,6 +59,7 @@ def create_new(user: User):
 
 
 @bp.post("/create-new")
+@login_after('mail.write.create_new')
 @login_required
 def create_new_post(user: User):
     if Mail.query.filter_by(
