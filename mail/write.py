@@ -24,6 +24,17 @@ MIN_DAYS = 7
 MAX_DAYS = 365 + timedelta(weeks=4).days
 # 편지 개수 제한
 MAIL_LIMIT = 20
+# 발송 날짜 제한
+SEND_LIMIT = 200
+
+
+def check_date_limit(date: datetime) -> bool:
+    count = Mail.query.filter_by(
+        send_date=date
+    ).count()
+
+    # true : 제한 걸림 요청 거부
+    return count > SEND_LIMIT
 
 
 @bp.get("/create-new")
@@ -71,6 +82,10 @@ def create_new_post(user: User):
     try:
         # 편지를 보낼 날짜를 불러옴
         send_date = datetime.strptime(request.form['date'], "%Y-%m-%d")
+
+        # 하루 200통 체크
+        if check_date_limit(date=send_date):
+            return error(f"해당 날짜에 보내는 편지가 <b>{SEND_LIMIT}</b>통이 넘어 해당 날짜를 선택 할 수 없습니다.")
 
         # 같은 요일에 보내는 편지를 작성한 적이 있다면 거부
         test = Mail.query.filter_by(
@@ -174,6 +189,11 @@ def edit_post(user: User, mail: Mail, mail_id: int):
     try:
         # 편지를 보낼 날짜를 불러옴
         send_date = datetime.strptime(request.form['date'], "%Y-%m-%d")
+
+        # 하루 200통 체크
+        if check_date_limit(date=send_date):
+            error.append(f"해당 날짜에 보내는 편지가 <b>{SEND_LIMIT}</b>통이 넘어 해당 날짜를 선택 할 수 없습니다.")
+            raise ValueError("skip this request!")
 
         # 같은 요일에 보내는 편지를 작성한 적이 있다면 거부
         test = Mail.query.filter_by(
