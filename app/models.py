@@ -255,6 +255,10 @@ class TermsOfService(db.Model):
     def html(self) -> str:
         return get_html(text=self.content)
 
+    @property
+    def effective_date(self) -> datetime:
+        return self.creation_date + timedelta(days=7)
+
     def __repr__(self):
         return f"<TermsOfService id={self.id} title={self.title!r}>"
 
@@ -281,6 +285,10 @@ class PrivacyPolicy(db.Model):
     @property
     def html(self) -> str:
         return get_html(text=self.content)
+
+    @property
+    def effective_date(self) -> datetime:
+        return self.creation_date + timedelta(days=7)
 
     def __repr__(self):
         return f"<PrivacyPolicy id={self.id} title={self.title!r}>"

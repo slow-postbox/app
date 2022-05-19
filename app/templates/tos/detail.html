@@ -28,9 +28,21 @@
 
 <section class="section">
     <div class="container">
+        <div class="content is-medium">
+            <h1>서비스 이용약관의 공고일자 및 시행일자</h1>
+            <ul>
+                <li>공고일자 : {{ tos.creation_date.strftime("%Y년 %m월 %d일") }}</li>
+                <li>시행일자 : {{ tos.effective_date.strftime("%Y년 %m월 %d일") }}</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
     {% for _tos in toss %}
         <div class="box" data-url="/tos/{{ _tos.id }}">
-            <h5 class="title is-5">{{ _tos.creation_date.strftime("%Y-%m-%d") }}</h5>
+            <h5 class="title is-5">{{ _tos.creation_date.strftime("%Y년 %m월 %d일") }}</h5>
         {% if _tos.id == tos.id %}
             <p class="subtitle">지금 보고있는 이용약관 입니다.</p>
         {% endif %}

@@ -28,9 +28,21 @@
 
 <section class="section">
     <div class="container">
+        <div class="content is-medium">
+            <h1>개인정보 처리방침의 공고일자 및 시행일자</h1>
+            <ul>
+                <li>공고일자 : {{ privacy.creation_date.strftime("%Y년 %m월 %d일") }}</li>
+                <li>시행일자 : {{ privacy.effective_date.strftime("%Y년 %m월 %d일") }}</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
     {% for _privacy in pp %}
         <div class="box" data-url="/privacy/{{ _privacy.id }}">
-            <h5 class="title is-5">{{ _privacy.creation_date.strftime("%Y-%m-%d") }}</h5>
+            <h5 class="title is-5">{{ _privacy.creation_date.strftime("%Y년 %m월 %d일") }}</h5>
         {% if _privacy.id == privacy.id %}
             <p class="subtitle">지금 보고있는 처리방침 입니다.</p>
         {% endif %}
