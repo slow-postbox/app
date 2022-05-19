@@ -34,6 +34,18 @@ def set_error_message(message: str or list):
     return error_id
 
 
+def login_after(endpoint):
+    def wrapper(f):
+        @wraps(f)
+        def decorator(*args, **kwargs):
+            session['login_after'] = endpoint
+            return f(*args, **kwargs)
+
+        return decorator
+
+    return wrapper
+
+
 def login_required(f):
     @wraps(f)
     def decorator(*args, **kwargs):

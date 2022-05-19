@@ -117,7 +117,13 @@ def login_post():
         'history_id': history.id,
     }
 
-    return redirect(url_for("dashboard.index"))
+    try:
+        endpoint = session['login_after']
+        del session['login_after']
+    except KeyError:
+        endpoint = "dashboard.index"
+
+    return redirect(url_for(endpoint))
 
 
 @bp.get("/sign-up")
