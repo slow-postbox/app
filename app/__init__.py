@@ -17,6 +17,8 @@ def create_app():
     app.config['SECRET_KEY'] = secret_key()
     app.config['SQLALCHEMY_DATABASE_URI'] = environ['SQLALCHEMY_DATABASE_URI']
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    app.config['SESSION_COOKIE_NAME'] = "slow_postbox"
+    app.config['SESSION_COOKIE_SAMESITE'] = "Strict"
 
     __import__("app.models")
     db.init_app(app=app)
