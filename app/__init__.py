@@ -3,12 +3,14 @@ from os import environ
 from flask import Flask
 from flask_migrate import Migrate
 from flask_sqlalchemy import SQLAlchemy
+from flask_redis import FlaskRedis
 from dotenv import load_dotenv
 
 from app.key import secret_key
 
 db = SQLAlchemy()
 migrate = Migrate()
+redis = FlaskRedis()
 
 
 def create_app():
@@ -19,10 +21,12 @@ def create_app():
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
     app.config['SESSION_COOKIE_NAME'] = "slow_postbox"
     app.config['SESSION_COOKIE_SAMESITE'] = "Strict"
+    app.config['REDIS_URL'] = environ['REDIS_URL']
 
     __import__("app.models")
     db.init_app(app=app)
     migrate.init_app(app=app, db=db)
+    redis.init_app(app)
 
     from . import views
     for view in views.__all__:
