@@ -28,6 +28,11 @@ from mail.utils import send_token
 bp = Blueprint("auth", __name__, url_prefix="/auth")
 re = compile(r'(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)')
 
+alert = "\n".join([
+    "<p>- <b>{name}</b>이 업데이트 되었습니다.</p>",
+    "<p>- 변경된 <b>{name}</b>은 <b>{date}</b>부터 시행됩니다.</p>",
+])
+
 
 @bp.get("/logout")
 def logout():
@@ -82,25 +87,37 @@ def login_post():
     if user is None:
         return error("이메일 또는 비밀번호가 올바르지 않습니다.")
 
+    alerts = []
+
+    # get latest tos version
     tos = TermsOfService.query.order_by(
         TermsOfService.id.desc()
     ).with_entities(
         TermsOfService.id,
+        TermsOfService.creation_date,
     ).first()
 
-    if tos.id != user.tos:
-        # TODO:update tos version update
-        return "bad tos version"
-
+    # get latest privacy police version
     privacy = PrivacyPolicy.query.order_by(
         PrivacyPolicy.id.desc()
     ).with_entities(
         PrivacyPolicy.id,
+        PrivacyPolicy.creation_date,
     ).first()
 
+    if tos.id != user.tos:
+        user.tos = tos.id
+        alerts.append(alert.format(
+            name="서비스 이용약관",
+            date=(tos.creation_date + timedelta(days=7)).strftime("%Y년 %m월 %d일"),
+        ))
+
     if privacy.id != user.privacy:
-        # TODO:update privacy version update
-        return "bad privacy version"
+        user.privacy = privacy.id
+        alerts.append(alert.format(
+            name="개인정보 처리방침",
+            date=(privacy.creation_date + timedelta(days=7)).strftime("%Y년 %m월 %d일"),
+        ))
 
     # update last login
     user.last_login = datetime.now()
@@ -117,13 +134,17 @@ def login_post():
         'history_id': history.id,
     }
 
-    try:
-        endpoint = session['login_after']
-        del session['login_after']
-    except KeyError:
-        endpoint = "dashboard.index"
+    if len(alerts) == 0:
+        try:
+            endpoint = session['login_after']
+            del session['login_after']
+        except KeyError:
+            endpoint = "dashboard.index"
 
-    return redirect(url_for(endpoint))
+        return redirect(url_for(endpoint))
+    else:
+        message_id = set_error_message("<br>".join(alerts))
+        return redirect(url_for("dashboard.index", message=message_id))
 
 
 @bp.get("/sign-up")

@@ -9,6 +9,11 @@
             {{ error }}
         </div>
     {% endif %}
+    {% if message is not none %}
+        <div class="notification is-warning">
+            {{ message|safe }}
+        </div>
+    {% endif %}
         <div class="block">
             <a class="button is-danger is-medium">회원 탈퇴</a>
             <a class="button is-warning is-medium" href="/dashboard/history">로그인 기록 조회</a>

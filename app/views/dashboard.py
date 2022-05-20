@@ -25,7 +25,8 @@ def index(user: User):
         user=user,
         mails=mails,
         mail_count=len(mails),
-        error=get_error_message()
+        error=get_error_message(),
+        message=get_error_message("message")
     )
 
 

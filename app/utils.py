@@ -18,8 +18,8 @@ def get_ip() -> str:
     return request.headers.get("X-Forwarded-For", request.remote_addr)
 
 
-def get_error_message() -> str or list or None:
-    error_id = request.args.get("error", None)
+def get_error_message(argument_key: str = "error") -> str or list or None:
+    error_id = request.args.get(argument_key, None)
     if error_id not in session:
         return None
 
