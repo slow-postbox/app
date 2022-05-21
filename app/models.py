@@ -292,3 +292,58 @@ class PrivacyPolicy(db.Model):
 
     def __repr__(self):
         return f"<PrivacyPolicy id={self.id} title={self.title!r}>"
+
+
+class PasswordReset(db.Model):
+    id = db.Column(
+        db.Integer,
+        unique=True,
+        primary_key=True,
+        nullable=False
+    )
+
+    owner_id = db.Column(
+        db.Integer,
+        db.ForeignKey("user.id")
+    )
+
+    # 요청 생성 IP
+    req_ip = db.Column(
+        db.String(120),
+        nullable=False
+    )
+    # 요청 사용 IP
+    use_ip = db.Column(
+        db.String(120),
+        nullable=True,
+        default=None
+    )
+
+    token = db.Column(
+        db.String(96),
+        nullable=False
+    )
+
+    creation_date = db.Column(
+        db.DateTime,
+        nullable=False,
+        default=func.now()
+    )
+
+    used_date = db.Column(
+        db.DateTime,
+        nullable=True,
+        default=None
+    )
+
+    def is_used(self) -> bool:
+        #   <used_date type>
+        # None     : not used
+        # Datetime : used
+        return self.used_date is not None
+
+    def is_expired(self) -> bool:
+        return self.creation_date < datetime.now() - timedelta(minutes=5)
+
+    def __repr__(self):
+        return f"<PasswordReset id={self.id} owner_id={self.owner_id} req_ip={self.req_ip!r}>"
