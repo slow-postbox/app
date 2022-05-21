@@ -1,4 +1,4 @@
-from secrets import token_hex
+from secrets import token_bytes
 from functools import wraps
 
 from flask import request
@@ -29,7 +29,7 @@ def get_error_message(argument_key: str = "error") -> str or list or None:
 
 
 def set_error_message(message: str or list):
-    error_id = token_hex(16)
+    error_id = token_bytes(8).hex()
     session[error_id] = message
     return error_id
 
