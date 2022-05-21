@@ -1,4 +1,5 @@
 from secrets import token_bytes
+from datetime import timedelta
 from functools import wraps
 
 from flask import request
@@ -6,6 +7,7 @@ from flask import session
 from flask import redirect
 from flask import url_for
 
+from app import redis
 from app.models import User
 from app.models import LoginHistory
 from app.models import Mail
@@ -16,6 +18,38 @@ from app.models import PrivacyPolicy
 
 def get_ip() -> str:
     return request.headers.get("X-Forwarded-For", request.remote_addr)
+
+
+def create_csrf_token() -> str:
+    session_id = token_bytes(int(32 / 2)).hex()
+    csrf_token = token_bytes(int(64 / 2)).hex()
+    ip = get_ip()
+
+    redis.set(
+        name=f"slow_postbox:csrf:{ip}:{session_id}",
+        value=csrf_token,
+        ex=timedelta(hours=1).seconds
+    )
+
+    return session_id + csrf_token
+
+
+def verify_csrf_token(csrf_token: str) -> bool:
+    if len(csrf_token) != (32 + 64):
+        return False
+
+    session_id = csrf_token[:32]
+    csrf_token = csrf_token[32:]
+    ip = get_ip()
+
+    token = redis.get(name=f"slow_postbox:csrf:{ip}:{session_id}")
+    if token is None:
+        return False
+
+    # remove used csrf token
+    redis.delete(f"slow_postbox:csrf:{ip}:{session_id}")
+
+    return csrf_token == token.decode()
 
 
 def get_error_message(argument_key: str = "error") -> str or list or None:
