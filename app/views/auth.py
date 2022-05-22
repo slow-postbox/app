@@ -20,6 +20,7 @@ from app.models import LoginHistory
 from app.models import Code
 from app.models import TermsOfService
 from app.models import PrivacyPolicy
+from app.models import PasswordReset
 from app.utils import get_ip
 from app.utils import login_block
 from app.utils import get_error_message
