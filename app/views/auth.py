@@ -355,6 +355,18 @@ def password_reset_post():
     ).first()
 
     if user is not None:
+        pw = PasswordReset.query.filter_by(
+            owner_id=user.id,
+            used_date=None
+        ).filter(
+            PasswordReset.creation_date > datetime.now() - timedelta(minutes=5)
+        ).order_by(
+            PasswordReset.id.desc()
+        ).first()
+
+        if pw is not None:
+            return error("유효한 비밀번호 재설정 요청이 있어 새로운 요청을 생성 할 수 없습니다.")
+
         pw = PasswordReset()
         pw.owner_id = user.id
         pw.req_ip = get_ip()
