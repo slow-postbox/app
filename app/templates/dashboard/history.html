@@ -4,6 +4,9 @@
     <div class="container">
         <h1 class="title is-1">로그인 기록</h1>
         <p class="subtitle">로그인 기록은 1개월까지 보관됩니다.</p>
+        <div class="block">
+            <a class="button is-info is-large" href="/dashboard/history/reset">비밀번호 재설정 기록</a>
+        </div>
     </div>
 </section>
 
@@ -11,7 +14,7 @@
     <div class="container">
     {% for history in histories %}
         <div class="box">
-            <h4 class="title is-4">{{ history.creation_date }}</h4>
+            <h4 class="title is-4">{{ history.creation_date.strftime("%Y년 %m월 %d일") }}</h4>
             <div class="content block">
                 <p>요청 IP 주소 : {{ history.ip }}</p>
 

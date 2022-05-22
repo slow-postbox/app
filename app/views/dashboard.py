@@ -5,6 +5,7 @@ from app import db
 from app.models import User
 from app.models import LoginHistory
 from app.models import Mail
+from app.models import PasswordReset
 from app.utils import get_error_message
 from app.utils import login_required
 
@@ -42,6 +43,21 @@ def history(user: User):
     return render_template(
         "dashboard/history.html",
         histories=login_history,
+    )
+
+
+@bp.get("/history/reset")
+@login_required
+def reset_history(user: User):
+    pws = PasswordReset.query.filter_by(
+        owner_id=user.id,
+    ).order_by(
+        PasswordReset.id.desc()
+    ).all()
+
+    return render_template(
+        "dashboard/reset-history.html",
+        pws=pws,
     )
 
 

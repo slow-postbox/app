@@ -1,0 +1,34 @@
+{% extends 'layout.html' %}
+{% block content %}
+<section class="section">
+    <div class="container">
+        <h1 class="title is-1">비밀번호 재설정 기록</h1>
+        <div class="block">
+            <a class="button is-link is-large" href="/dashboard/history">로그인 기록</a>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+    {% for pw in pws %}
+        <div class="box">
+            <h4 class="title is-4">{{ pw.creation_date.strftime("%Y년 %m월 %d일") }}</h4>
+            <div class="content block">
+                <p>요청한 IP 주소 : {{ pw.req_ip }}</p>
+        {% if pw.used_date is none %}
+            {% if pw.is_expired() %}
+                <p><b>* 만료된 요청입니다. *</b></p>
+            {% else %}
+                <p><b>* 사용하지 않은 요청입니다. *</b></p>
+            {% endif %}
+        {% else %}
+                <p>사용한 IP 주소 : {{ pw.use_ip }}</p>
+                <p>사용한 날짜 : {{ pw.used_date.strftime("%Y년 %m월 %d일 / %H시 %M분") }}</p>
+        {% endif %}
+            </div>
+        </div>
+    {% endfor %}
+    </div>
+</section>
+{% endblock %}
