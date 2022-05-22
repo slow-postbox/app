@@ -28,9 +28,8 @@ def fetch_reset(f):
 
         pw = PasswordReset.query.filter_by(
             owner_id=user_id,
-            token=token
-        ).filter(
-            PasswordReset.used_date == None
+            token=token,
+            used_date=None
         ).first()
 
         if pw is None:
