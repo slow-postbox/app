@@ -52,6 +52,7 @@
 
 {% block script %}
 <script src="/static/js/toastui-editor-all.min.js"></script>
+<script src="/static/js/autosave.js"></script>
 <script>
     const Editor = toastui.Editor;
     const editor = new Editor({
@@ -61,7 +62,9 @@
         initialValue: document.getElementById("dummy").value,
     });
 
+    setupAutosave({{ m.id }});
     function fillForm(lock){
+        clearAutosave({{ m.id }});
         document.querySelector("input[name=title]").value = document.getElementById("title").value;
         document.querySelector("input[name=date]").value = document.getElementById("date").value;
         document.querySelector("textarea[name=content]").value = editor.getMarkdown();
