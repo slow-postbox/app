@@ -5,6 +5,7 @@ __all__ = [
     "mail",
     "notice",
     "privacy",
+    "reset",
     "tos",
 ]
 

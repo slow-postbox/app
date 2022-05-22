@@ -2,6 +2,7 @@ from os import environ
 from re import compile
 from random import choices
 from hashlib import sha512
+from secrets import token_bytes
 from datetime import datetime
 from datetime import timedelta
 
@@ -24,6 +25,7 @@ from app.utils import login_block
 from app.utils import get_error_message
 from app.utils import set_error_message
 from mail.utils import send_token
+from mail.utils import send_password_reset
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
 re = compile(r'(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)')
@@ -47,7 +49,8 @@ def logout():
 def login():
     message = {
         "logout": "로그아웃 되었습니다.",
-        "sign-up": "방금 가입한 계정으로 다시 로그인 해주세요."
+        "sign-up": "방금 가입한 계정으로 다시 로그인 해주세요.",
+        "reset": "초기화한 비밀번호로 로그인 해주세요."
     }.get(request.args.get("message"), None)
 
     return render_template(
@@ -325,11 +328,47 @@ def ready_post():
 @login_block
 def password_reset():
     return render_template(
-        "auth/password-reset.html"
+        "auth/password-reset.html",
+        error=get_error_message(),
+        message=get_error_message("message")
     )
 
 
 @bp.post("/password-reset")
 @login_block
 def password_reset_post():
-    return
+    def error(message):
+        error_id = set_error_message(message=message)
+        return redirect(url_for("auth.password_reset", error=error_id))
+
+    email = request.form.get("email", "").strip()
+
+    if re.match(email) is None:
+        return error("이메일 형식이 올바르지 않습니다.")
+
+    user = User.query.filter_by(
+        email=email
+    ).with_entities(
+        User.id,
+        User.email
+    ).first()
+
+    if user is not None:
+        pw = PasswordReset()
+        pw.owner_id = user.id
+        pw.req_ip = get_ip()
+        pw.token = token_bytes(48).hex()
+
+        db.session.add(pw)
+        db.session.commit()
+
+        send_password_reset(
+            email=user.email,
+            url="".join([
+                request.scheme, "://", request.host,
+                url_for("reset.password_input", user_id=user.id, token=pw.token)
+            ])
+        )
+
+    message_id = set_error_message(message="비밀번호 초기화 링크가 이메일로 전송되었습니다.")
+    return redirect(url_for("auth.password_reset", message=message_id))
