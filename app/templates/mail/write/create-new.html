@@ -60,6 +60,7 @@
 
     setupAutosave('new');
     function fillForm(lock){
+        clearAutosave('new');
         document.querySelector("input[name=title]").value = document.getElementById("title").value;
         document.querySelector("input[name=date]").value = document.getElementById("date").value;
         document.querySelector("textarea[name=content]").value = editor.getMarkdown();

@@ -31,5 +31,4 @@ function setupAutosave(mail_id){
 function clearAutosave(mail_id){
     const STORAGE_KEY = `slow_postbox:mail:${mail_id}`;
     clearInterval(task_id);
-    sessionStorage.removeItem(STORAGE_KEY);
 }
