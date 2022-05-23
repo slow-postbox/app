@@ -19,7 +19,7 @@ function setupAutosave(mail_id){
         // 저장된 편지 없음
         startTask();
     } else {
-        if(confirm("* 자동 저장된 편지가 발견되었습니다.\n* 해당 편지를 불러오겠습니까?")){
+        if(editor.getMarkdown() != backupData && confirm("* 자동 저장된 편지가 발견되었습니다.\n* 해당 편지를 불러오겠습니까?")){
             editor.setMarkdown(backupData);
         }
 
