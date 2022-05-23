@@ -137,13 +137,6 @@ def create_new_post(user: User):
 @login_required
 @fetch_mail
 def edit(user: User, mail: Mail, mail_id: int):
-    if mail.lock is True:
-        return render_template(
-            "mail/write/locked.html",
-            m=mail,
-            u=user
-        )
-
     g.editor_css = True
     return render_template(
         "mail/write/edit.html",
@@ -156,13 +149,6 @@ def edit(user: User, mail: Mail, mail_id: int):
 @login_required
 @fetch_mail
 def edit_post(user: User, mail: Mail, mail_id: int):
-    if mail.lock is True:
-        return render_template(
-            "mail/write/locked.html",
-            m=mail,
-            u=user
-        )
-
     error = []
 
     try:
@@ -236,3 +222,13 @@ def edit_post(user: User, mail: Mail, mail_id: int):
 
     # without error message
     return redirect(url_for("mail.write.edit", mail_id=mail_id))
+
+
+@bp.get("/delete/<int:mail_id>")
+@login_required
+@fetch_mail
+def delete(user: User, mail: Mail, mail_id: int):
+    db.session.delete(mail)
+    db.session.commit()
+
+    return redirect(url_for("dashboard.index", message=set_error_message("해당 편지를 삭제했습니다.")))

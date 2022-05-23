@@ -6,6 +6,7 @@ from flask import request
 from flask import session
 from flask import redirect
 from flask import url_for
+from flask import render_template
 
 from app import redis
 from app.models import User
@@ -158,6 +159,13 @@ def fetch_mail(f):
         if mail is None:
             error_id = set_error_message(message="해당 편지를 찾을 수 없습니다.")
             return redirect(url_for("dashboard.index", error=error_id))
+
+        if mail.lock is True:
+            return render_template(
+                "mail/write/locked.html",
+                m=mail,
+                u=user
+            )
 
         kwargs.update({"mail": mail})
         return f(*args, **kwargs)

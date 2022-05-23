@@ -24,6 +24,8 @@
                     <input id="date" class="input" type="date" required="required" value="{{ m.send_date.strftime('%Y-%m-%d') }}">
                 </div>
             </div>
+
+            <button class="button is-danger" id="mail-delete">편지 삭제</button>
         </div>
 
         <div class="block">
@@ -78,6 +80,11 @@
     document.getElementById("send").addEventListener('click', () => {
         if(confirm("우체통에 들어간 편지는 수정 할 수 없습니다. 정말로 이 편지를 우체통에 넣으시겠습니까?")){
             fillForm('true');
+        }
+    });
+    document.getElementById("mail-delete").addEventListener('click', () => {
+        if(confirm("해당 편지를 삭제하시겠습니까?")){
+            location.href = "/mail/delete/{{ m.id }}";
         }
     });
 </script>
