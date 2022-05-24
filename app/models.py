@@ -192,6 +192,22 @@ class Mail(db.Model):
         default=False
     )
 
+    # True  = sent
+    # False = not send
+    status = db.Column(
+        db.Boolean,
+        nullable=False,
+        default=False
+    )
+
+    # True  = read
+    # False = not read
+    read = db.Column(
+        db.Boolean,
+        nullable=False,
+        default=False
+    )
+
     @property
     def html(self) -> str:
         return get_html(text=self.content)
