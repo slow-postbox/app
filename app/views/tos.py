@@ -46,6 +46,7 @@ def detail(tos: TermsOfService, tos_id: int):
     return render_template(
         "tos/detail.html",
         error=get_error_message(),
+        message=get_error_message("message"),
         tos=tos,
         toss=TermsOfService.query.order_by(
             TermsOfService.id.desc()

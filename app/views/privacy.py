@@ -46,6 +46,7 @@ def detail(privacy: PrivacyPolicy, privacy_id: int):
     return render_template(
         "privacy/detail.html",
         error=get_error_message(),
+        message=get_error_message("message"),
         privacy=privacy,
         pp=PrivacyPolicy.query.order_by(
             PrivacyPolicy.id.desc()
