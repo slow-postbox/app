@@ -29,6 +29,7 @@ def latest():
     return render_template(
         "tos/detail.html",
         error=get_error_message(),
+        message=get_error_message("message"),
         tos=tos,
         toss=TermsOfService.query.order_by(
             TermsOfService.id.desc()
@@ -111,3 +112,16 @@ def edit_post(tos: TermsOfService, tos_id: int, user: User):
     db.session.commit()
 
     return redirect(url_for("tos.edit", tos_id=tos_id))
+
+
+@bp.get("/delete/<int:tos_id>")
+@login_required
+@admin_only
+def delete(tos_id: int, user: User):
+    TermsOfService.query.filter_by(
+        id=tos_id
+    ).delete()
+
+    db.session.commit()
+    return redirect(url_for("tos.latest",
+                            message=set_error_message("해당 서비스 이용약관을 삭제했습니다.")))

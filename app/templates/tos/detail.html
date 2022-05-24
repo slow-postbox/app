@@ -8,6 +8,11 @@
             {{ error }}
         </div>
     {% endif %}
+    {% if message is not none %}
+        <div class="notification is-primary">
+            {{ message }}
+        </div>
+    {% endif %}
     {% if session['admin'] is true %}
         <div class="block buttons">
             <a class="button is-primary is-large" href="/tos/create-new">생성</a>

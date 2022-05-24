@@ -29,6 +29,7 @@ def latest():
     return render_template(
         "privacy/detail.html",
         error=get_error_message(),
+        message=get_error_message("message"),
         privacy=privacy,
         pp=PrivacyPolicy.query.order_by(
             PrivacyPolicy.id.desc()
@@ -111,3 +112,16 @@ def edit_post(privacy: PrivacyPolicy, privacy_id: int, user: User):
     db.session.commit()
 
     return redirect(url_for("privacy.edit", privacy_id=privacy_id))
+
+
+@bp.get("/delete/<int:privacy_id>")
+@login_required
+@admin_only
+def delete(privacy_id: int, user: User):
+    PrivacyPolicy.query.filter_by(
+        id=privacy_id
+    ).delete()
+
+    db.session.commit()
+    return redirect(url_for("privacy.latest",
+                            message=set_error_message("해당 개인정보 처리방침을 삭제했습니다.")))
