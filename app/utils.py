@@ -17,38 +17,43 @@ from app.models import TermsOfService
 from app.models import PrivacyPolicy
 
 
+CSRF_TOKEN_LENGTH = 64
+CSRF_KEY_NAME = "slow_post:csrf:{ip}:{path}"
+
+
 def get_ip() -> str:
     return request.headers.get("X-Forwarded-For", request.remote_addr)
 
 
 def create_csrf_token() -> str:
-    session_id = token_bytes(int(32 / 2)).hex()
-    csrf_token = token_bytes(int(64 / 2)).hex()
-    ip = get_ip()
-
+    csrf_token = token_bytes(int(CSRF_TOKEN_LENGTH / 2)).hex()
     redis.set(
-        name=f"slow_postbox:csrf:{ip}:{session_id}",
+        name=CSRF_KEY_NAME.format(
+            ip=get_ip(),
+            path=request.path
+        ),
         value=csrf_token,
         ex=timedelta(hours=1).seconds
     )
 
-    return session_id + csrf_token
+    return csrf_token
 
 
 def verify_csrf_token(csrf_token: str) -> bool:
-    if len(csrf_token) != (32 + 64):
+    if len(csrf_token) != CSRF_TOKEN_LENGTH:
         return False
 
-    session_id = csrf_token[:32]
-    csrf_token = csrf_token[32:]
-    ip = get_ip()
+    name = CSRF_KEY_NAME.format(
+        ip=get_ip(),
+        path=request.path
+    )
 
-    token = redis.get(name=f"slow_postbox:csrf:{ip}:{session_id}")
+    token = redis.get(name=name)
     if token is None:
         return False
 
     # remove used csrf token
-    redis.delete(f"slow_postbox:csrf:{ip}:{session_id}")
+    redis.delete(name)
 
     return csrf_token == token.decode()
 
