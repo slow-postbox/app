@@ -49,6 +49,7 @@
     <input type="date" name="date" hidden="hidden">
     <textarea name="content" hidden="hidden"></textarea>
     <input type="text" name="lock" hidden="hidden">
+    <input type="text" name="csrf" hidden="hidden">
 </form>
 {% endblock %}
 
@@ -64,6 +65,8 @@
         initialValue: document.getElementById("dummy").value,
     });
 
+    const csrf = "{{ csrf }}";
+
     setupAutosave({{ m.id }});
     function fillForm(lock){
         clearAutosave({{ m.id }});
@@ -71,6 +74,7 @@
         document.querySelector("input[name=date]").value = document.getElementById("date").value;
         document.querySelector("textarea[name=content]").value = editor.getMarkdown();
         document.querySelector("input[name=lock]").value = lock;
+        document.querySelector("input[name=csrf]").value = csrf;
         document.getElementById("sendForm").submit();
     }
 

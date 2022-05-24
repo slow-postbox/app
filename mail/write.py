@@ -14,6 +14,8 @@ from app.models import Mail
 from app.utils import login_after
 from app.utils import login_required
 from app.utils import fetch_mail
+from app.utils import create_csrf_token
+from app.utils import verify_csrf_token
 from app.utils import get_error_message
 from app.utils import set_error_message
 
@@ -54,7 +56,8 @@ def create_new(user: User):
     return render_template(
         "mail/write/create-new.html",
         date=(datetime.now() + timedelta(days=365)).strftime("%Y-%m-%d"),
-        error=get_error_message()
+        error=get_error_message(),
+        csrf=create_csrf_token()
     )
 
 
@@ -73,6 +76,13 @@ def create_new_post(user: User):
     def error(message):
         error_id = set_error_message(message=message)
         return redirect(url_for("mail.write.create_new", error=error_id))
+
+    try:
+        csrf = request.form['csrf']
+        if not verify_csrf_token(csrf_token=csrf):
+            return error("CSRF 토큰이 올바르지 않습니다.")
+    except KeyError:
+        return error("CSRF 토큰이 없습니다.")
 
     try:
         content = request.form['content']
@@ -141,7 +151,8 @@ def edit(user: User, mail: Mail, mail_id: int):
     return render_template(
         "mail/write/edit.html",
         m=mail,
-        error=get_error_message()
+        error=get_error_message(),
+        csrf=create_csrf_token()
     )
 
 
@@ -149,6 +160,17 @@ def edit(user: User, mail: Mail, mail_id: int):
 @login_required
 @fetch_mail
 def edit_post(user: User, mail: Mail, mail_id: int):
+    try:
+        csrf = request.form['csrf']
+        if not verify_csrf_token(csrf_token=csrf):
+            return redirect(url_for("mail.write.edit",
+                                    mail_id=mail_id,
+                                    error=set_error_message(["CSRF 토큰이 올바르지 않습니다."])))
+    except KeyError:
+        return redirect(url_for("mail.write.edit",
+                                mail_id=mail_id,
+                                error=set_error_message(["CSRF 토큰이 없습니다."])))
+
     error = []
 
     try:
