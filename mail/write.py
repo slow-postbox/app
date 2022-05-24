@@ -248,9 +248,26 @@ def edit_post(user: User, mail: Mail, mail_id: int):
 
 @bp.get("/delete/<int:mail_id>")
 @login_required
-@fetch_mail
-def delete(user: User, mail: Mail, mail_id: int):
-    db.session.delete(mail)
+def delete(user: User, mail_id: int):
+    def resp(key: str, message: str):
+        kwargs = {key: set_error_message(message=message)}
+        return redirect(url_for("dashboard.index", **kwargs))
+
+    deleted = Mail.query.filter_by(
+        id=mail_id,
+        owner_id=user.id,
+        lock=False
+    ).delete()
+
     db.session.commit()
 
-    return redirect(url_for("dashboard.index", message=set_error_message("해당 편지를 삭제했습니다.")))
+    if deleted == 0:
+        return resp(
+            key="error",
+            message="삭제할 편지를 찾지 못 했습니다."
+        )
+
+    return resp(
+        key="message",
+        message="해당 편지를 삭제했습니다."
+    )
