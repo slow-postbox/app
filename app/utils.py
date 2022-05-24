@@ -16,13 +16,16 @@ from app.models import Notice
 from app.models import TermsOfService
 from app.models import PrivacyPolicy
 
-
 CSRF_TOKEN_LENGTH = 64
-CSRF_KEY_NAME = "slow_post:csrf:{ip}:{path}"
+CSRF_KEY_NAME = "slow_post:csrf:{ip}:{user_id}:{path}"
 
 
 def get_ip() -> str:
     return request.headers.get("X-Forwarded-For", request.remote_addr)
+
+
+def get_user_id() -> str:
+    return session.get("user", {}).get("user_id", "undefined")
 
 
 def create_csrf_token() -> str:
@@ -30,6 +33,7 @@ def create_csrf_token() -> str:
     redis.set(
         name=CSRF_KEY_NAME.format(
             ip=get_ip(),
+            user_id=get_user_id(),
             path=request.path
         ),
         value=csrf_token,
@@ -45,6 +49,7 @@ def verify_csrf_token(csrf_token: str) -> bool:
 
     name = CSRF_KEY_NAME.format(
         ip=get_ip(),
+        user_id=get_user_id(),
         path=request.path
     )
 
