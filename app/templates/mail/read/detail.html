@@ -1,0 +1,36 @@
+{% extends 'layout.html' %}
+{% block content %}
+<section class="section">
+    <div class="container">
+        <h1 class="title is-1">{{ mail.title }}</h1>
+        <p class="subtitle">{{ mail.creation_date.strftime("%Y년 %m월 %d일") }}</p>
+
+        <div class="block" id="print_block">
+            <button class="button is-primary is-large" id="print">인쇄하기</button>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="content is-large">
+            {{ mail.html|safe }}
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block script %}
+<script>
+    document.getElementById("print").addEventListener('click', () => {
+        document.querySelector("nav").classList.add("is-hidden");
+        document.getElementById("print_block").classList.add("is-hidden");
+        window.print();
+    });
+
+    window.addEventListener('afterprint', () => {
+        document.querySelector("nav").classList.remove("is-hidden");
+        document.getElementById("print_block").classList.remove("is-hidden");
+    });
+</script>
+{% endblock %}

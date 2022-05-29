@@ -1,0 +1,30 @@
+{% extends 'layout.html' %}
+{% block content %}
+<section class="section">
+    <div class="container">
+        <h1 class="title is-1">편지</h1>
+        <p class="subtitle">내용을 확인할 편지를 확인해주세요.</p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+    {% for mail in mails %}
+        <div class="box" data-url="/mail/read/{{ mail.id }}">
+            <p style="font-size:1.5rem">{{ mail.title }}</p>
+            <p class="subtitle">{{ mail.creation_date.strftime("%Y년 %m월 %d일") }}</p>
+        </div>
+    {% endfor %}
+    </div>
+</section>
+{% endblock %}
+
+{% block script %}
+<script>
+    document.querySelectorAll("div.box").forEach((element) => {
+	    element.addEventListener('click', () => {
+            location.href = element.dataset.url;
+	    });
+    });
+</script>
+{% endblock %}
