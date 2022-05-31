@@ -59,7 +59,8 @@ def main():
             LoginHistory.creation_date < datetime.now() - timedelta(days=30)
         ).limit(50).all():
             session.delete(history)
-            session.commit()
+
+        session.commit()
 
     @register_schedule(timedelta(minutes=10).seconds)
     def remove_used_or_expired_email_request():
@@ -73,15 +74,27 @@ def main():
         ).limit(50).all():
             logger.info(f"remove email verify code target_email='{code.email}'")
             session.delete(code)
-            session.commit()
+
+        session.commit()
 
     # TODO:시간된 메일 전송
     def send_mail():
         return
 
-    # TODO:오래된 비밀번호 재설정 기록 삭제
+    @register_schedule(timedelta(minutes=15).seconds)
     def remove_old_password_reset():
-        return
+        logger.info("try to remove used or expired password reset request")
+        session = session_factory()
+        for password_reset in session.query(PasswordReset).filter(
+            or_(
+                PasswordReset.used_date != None,
+                PasswordReset.creation_date < datetime.now() - timedelta(minutes=5)
+            )
+        ).limit(50).all():
+            logger.info(f"remove password reset request id='{password_reset.id} owner_id='{password_reset.owner_id}'")
+            session.delete(password_reset)
+
+        session.commit()
 
 
 if __name__ == "__main__":
