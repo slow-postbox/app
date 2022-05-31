@@ -363,3 +363,41 @@ class PasswordReset(db.Model):
 
     def __repr__(self):
         return f"<PasswordReset id={self.id} owner_id={self.owner_id} req_ip={self.req_ip!r}>"
+
+
+class KeyStore(db.Model):
+    id = db.Column(
+        db.Integer,
+        unique=True,
+        primary_key=True,
+        nullable=False
+    )
+
+    owner_id = db.Column(
+        db.Integer,
+        db.ForeignKey("user.id")
+    )
+
+    mail_id = db.Column(
+        db.Integer,
+        db.ForeignKey("mail.id")
+    )
+
+    key = db.Column(
+        db.String(64),
+        nullable=False
+    )
+
+    iv = db.Column(
+        db.String(32),
+        nullable=False
+    )
+
+    creation_date = db.Column(
+        db.DateTime,
+        nullable=False,
+        default=func.now()
+    )
+
+    def __repr__(self):
+        return f"<KeyStore id={self.id}>"

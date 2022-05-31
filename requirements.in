@@ -4,6 +4,8 @@ flask-migrate
 flask-redis
 mysqlclient
 
+pycryptodome
+
 python-dotenv
 
 waitress

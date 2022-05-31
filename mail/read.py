@@ -11,6 +11,7 @@ from app.models import Mail
 from app.utils import set_error_message
 from app.utils import login_after
 from app.utils import login_required
+from mail.crypto import decrypt_mail
 
 bp = Blueprint("read", __name__, url_prefix="/read")
 
@@ -40,6 +41,12 @@ def detail(user: User, mail_id: int):
     if mail.read is False:
         mail.read = True
         db.session.commit()
+
+    mail.content = decrypt_mail(
+        owner_id=user.id,
+        mail_id=mail_id,
+        result=mail.content
+    )
 
     return render_template(
         "mail/read/detail.html",

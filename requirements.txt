@@ -46,6 +46,8 @@ mysqlclient==2.1.0
     # via -r requirements.in
 packaging==21.3
     # via redis
+pycryptodome==3.14.1
+    # via -r requirements.in
 pyparsing==3.0.9
     # via packaging
 python-dotenv==0.20.0

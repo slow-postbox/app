@@ -18,6 +18,8 @@ from app.utils import create_csrf_token
 from app.utils import verify_csrf_token
 from app.utils import get_error_message
 from app.utils import set_error_message
+from mail.crypto import encrypt_mail
+from mail.crypto import decrypt_mail
 
 bp = Blueprint("write", __name__, url_prefix="/")
 
@@ -128,7 +130,7 @@ def create_new_post(user: User):
     mail.owner_id = user.id
     mail.send_date = send_date
     mail.title = request.form.get("title", "제목 없는 편지").strip()[:100]
-    mail.content = content
+    mail.content = "content"
     mail.lock = True if request.form.get("lock", "false") == 'true' else False
 
     if len(mail.title) == 0:
@@ -140,6 +142,15 @@ def create_new_post(user: User):
     db.session.add(mail)
     db.session.commit()
 
+    # encrypt after mail created
+    mail.content = encrypt_mail(
+        owner_id=user.id,
+        mail_id=mail.id,
+        content=content
+    )
+
+    db.session.commit()
+
     return redirect(url_for("mail.write.edit", mail_id=mail.id))
 
 
@@ -148,6 +159,12 @@ def create_new_post(user: User):
 @fetch_mail
 def edit(user: User, mail: Mail, mail_id: int):
     g.editor_css = True
+    mail.content = decrypt_mail(
+        owner_id=user.id,
+        mail_id=mail_id,
+        result=mail.content
+    )
+
     return render_template(
         "mail/write/edit.html",
         m=mail,
@@ -235,6 +252,12 @@ def edit_post(user: User, mail: Mail, mail_id: int):
         pass
 
     mail.lock = True if request.form.get("lock", "false") == 'true' else False
+
+    mail.content = encrypt_mail(
+        owner_id=user.id,
+        mail_id=mail_id,
+        content=mail.content
+    )
 
     db.session.commit()
 
