@@ -63,7 +63,7 @@ def main():
 
     @register_schedule(timedelta(minutes=10).seconds)
     def remove_used_or_expired_email_request():
-        logger.info("try to used or expired email verify request")
+        logger.info("try to remove used or expired email verify request")
         session = session_factory()
         for code in session.query(Code).filter(
             or_(
