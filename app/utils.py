@@ -20,8 +20,17 @@ from app.models import Notice
 from app.models import TermsOfService
 from app.models import PrivacyPolicy
 
-# 차단할 이메일 목록
-BAN = []
+MAIL_KEY_NAME = "slow_post:mail:{host}"
+MAIL_LIFETIME = timedelta(hours=1).seconds
+MAIL_TRUE = token_bytes(16)
+MAIL_BAN_HOST = [
+    x
+    for x in [
+        x.strip()
+        for x in open("MAIL_BAN_HOST.txt", mode="r", encoding="utf-8").read().split("\n")
+    ]
+    if len(x) != 0
+]
 
 CSRF_TOKEN_LENGTH = 64
 CSRF_KEY_NAME = "slow_post:csrf:{ip}:{user_id}:{path}"
@@ -101,9 +110,27 @@ def test_email(email: str) -> bool or str:
         except (NXDOMAIN, NoAnswer):
             return False
 
+    def set_redis() -> None:
+        redis.set(
+            name=name,
+            value=MAIL_TRUE,
+            ex=MAIL_LIFETIME
+        )
+
+    def check_redis() -> bool:
+        return redis.get(name=name) == MAIL_TRUE
+
     user, host = email.rsplit("@", 1)
-    if host in BAN:
+    if host in MAIL_BAN_HOST:
         return "해당 이메일은 사용하실 수 없습니다."
+
+    name = MAIL_KEY_NAME.format(
+        host=host
+    )
+
+    # 검증 건너뛰기
+    if check_redis() is True:
+        return True
 
     try:
         dns = resolve(
@@ -127,6 +154,7 @@ def test_email(email: str) -> bool or str:
                     name = ".".join([x.decode() for x in item.exchange.labels if len(x) != 0])
                     count += 1
                     if safe_resolve(target=name):
+                        set_redis()
                         return True
 
     return "해당 이메일 주소는 MX 레코드 정보가 올바르지 않아 사용하실 수 없습니다."
