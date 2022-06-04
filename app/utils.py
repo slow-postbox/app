@@ -1,4 +1,5 @@
 from secrets import token_bytes
+from datetime import datetime
 from datetime import timedelta
 from functools import wraps
 
@@ -32,6 +33,13 @@ def get_ip() -> str:
 
 def get_user_id() -> str:
     return session.get("user", {}).get("user_id", "undefined")
+
+
+def get_today() -> datetime:
+    return datetime.strptime(
+        datetime.today().strftime("%Y-%m-%d"),
+        "%Y-%m-%d"
+    )
 
 
 def create_csrf_token() -> str:
@@ -216,6 +224,9 @@ def fetch_mail(f):
             return redirect(url_for("dashboard.index", error=error_id))
 
         if mail.lock is True:
+            if mail.send_date <= get_today():
+                return redirect(url_for("mail.read.detail", mail_id=mail.id))
+
             return render_template(
                 "mail/write/locked.html",
                 m=mail,
