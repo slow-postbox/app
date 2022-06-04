@@ -30,11 +30,12 @@
         </div>
     {% for mail in mails %}
         <div class="box" data-url="/mail/edit/{{ mail.id }}">
-        {% if mail.lock is true %}
-            <h4 class="title is-4"><span class="tag is-danger">수정불가</span> {{ mail.title }}</h4>
-        {% else %}
-            <h4 class="title is-4"><span class="tag is-primary">수정가능</span> {{ mail.title }}</h4>
-        {% endif %}
+            <h4 class="title is-4">
+            {% if mail.lock is true %}
+                <span class="tag is-danger">우체통</span>
+            {% endif %}
+                {{ mail.title }}
+            </h4>
             <p class="subtitle">{{ mail.creation_date.strftime("%Y년 %m월 %d일") }} ➔ {{ mail.send_date.strftime("%Y년 %m월 %d일") }}</p>
         </div>
     {% endfor %}
