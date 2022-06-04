@@ -22,6 +22,7 @@ from app.models import TermsOfService
 from app.models import PrivacyPolicy
 from app.models import PasswordReset
 from app.utils import get_ip
+from app.utils import test_email
 from app.utils import login_block
 from app.utils import get_error_message
 from app.utils import set_error_message
@@ -210,6 +211,13 @@ def sign_up_post():
             return error("해당 이메일 주소는 사용 할 수 없습니다.")
     except KeyError:
         return error("이메일을 입력해주세요.")
+
+    # DNS 활용해 이메일 검증하기
+    result = test_email(email=email)
+    if result is True:
+        pass
+    else:
+        return error(message=result)
 
     try:
         password = request.form['password'].strip()

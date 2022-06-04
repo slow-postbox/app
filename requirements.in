@@ -3,11 +3,8 @@ flask-sqlalchemy
 flask-migrate
 flask-redis
 mysqlclient
-
 pycryptodome
-
-python-dotenv
-
-waitress
-
 mistune
+dnspython
+python-dotenv
+waitress
