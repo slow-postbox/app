@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from flask import Blueprint
 from flask import redirect
 from flask import url_for
@@ -8,18 +6,13 @@ from flask import render_template
 from app import db
 from app.models import User
 from app.models import Mail
+from app.utils import get_today
 from app.utils import set_error_message
 from app.utils import login_after
 from app.utils import login_required
 from mail.crypto import decrypt_mail
 
 bp = Blueprint("read", __name__, url_prefix="/read")
-
-
-def get_today() -> datetime:
-    date_format = "%Y-%m-%d"
-    date_string = datetime.now().strftime(date_format)
-    return datetime.strptime(date_string, date_format)
 
 
 @bp.get("/<int:mail_id>")
@@ -29,14 +22,18 @@ def detail(user: User, mail_id: int):
     mail = Mail.query.filter_by(
         id=mail_id,
         owner_id=user.id,
-        lock=True
-    ).filter(
-       Mail.send_date < get_today()
     ).first()
 
     if mail is None:
-        error_id = set_error_message("해당 메일을 찾지 못했습니다.")
+        error_id = set_error_message("해당 편지를 찾지 못했습니다.")
         return redirect(url_for("dashboard.index", error=error_id))
+
+    if mail.lock is False:
+        error_id = set_error_message(["해당 편지는 우체통에 들어가지 않았습니다."])
+        return redirect(url_for("mail.write.edit", mail_id=mail_id, error=error_id))
+
+    if mail.send_date > get_today():
+        return redirect(url_for("mail.write.edit", mail_id=mail_id))
 
     if mail.read is False:
         mail.read = True
