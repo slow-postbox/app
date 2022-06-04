@@ -11,6 +11,7 @@ from flask import render_template
 from app import db
 from app.models import User
 from app.models import Mail
+from app.models import KeyStore
 from app.utils import login_after
 from app.utils import login_required
 from app.utils import fetch_mail
@@ -276,19 +277,25 @@ def delete(user: User, mail_id: int):
         kwargs = {key: set_error_message(message=message)}
         return redirect(url_for("dashboard.index", **kwargs))
 
-    deleted = Mail.query.filter_by(
+    mail = Mail.query.filter_by(
         id=mail_id,
         owner_id=user.id,
         lock=False
-    ).delete()
+    ).first()
 
-    db.session.commit()
-
-    if deleted == 0:
+    if mail is None:
         return resp(
             key="error",
             message="삭제할 편지를 찾지 못 했습니다."
         )
+
+    KeyStore.query.filter_by(
+        owner_id=user.id,
+        mail_id=mail.id,
+    ).delete()
+
+    db.session.delete(mail)
+    db.session.commit()
 
     return resp(
         key="message",
