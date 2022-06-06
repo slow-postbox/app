@@ -21,6 +21,8 @@ from app.models import Code
 from app.models import Mail
 from app.models import PasswordReset
 
+from mail.send import send_mail as _send_mail
+
 logger = getLogger()
 s = scheduler(time, sleep)
 schedule = {}
@@ -77,9 +79,43 @@ def main():
 
         session.commit()
 
-    # TODO:시간된 메일 전송
+    @register_schedule(timedelta(hours=1).seconds)
     def send_mail():
-        return
+        session = session_factory()
+        today = datetime.strptime(datetime.today().strftime("%Y-%m-%d"), "%Y-%m-%d")
+        for mail in session.query(Mail).with_entities(
+            Mail.id,
+            Mail.status,
+            Mail.owner_id,
+            Mail.title,
+        ).filter(
+            Mail.send_date <= today
+        ).filter_by(
+            # 편지가 우체통에 들어갔고
+            lock=True,
+            # 해당 편지가 전송된 적이 없다면
+            status=False
+        ).limit(50).all():
+            user = session.query(User).with_entities(
+                User.email,
+            ).filter_by(
+                id=mail.owner_id
+            ).first()
+
+            try:
+                _send_mail(
+                    email=user.email,
+                    url=environ['HOST'] + f"/mail/read/{mail.id}",
+                    title=mail.title
+                )
+
+                # 메일은 전송되었음
+                mail.status = True
+            except Exception as e:
+                logger.critical(f"FAIL TO SEND MAIL / mail_id={mail.id}")
+                logger.critical(e.__str__())
+
+        session.commit()
 
     @register_schedule(timedelta(minutes=15).seconds)
     def remove_old_password_reset():
