@@ -22,27 +22,36 @@ KeyStore = namedtuple(
 )
 
 
+def request(
+        method: str,  # GET or POST
+        owner_id: int,
+        mail_id: int
+) -> dict:
+    payload = parse.urlencode(query=dict(
+        owner_id=owner_id,
+        mail_id=mail_id
+    ))
+
+    req = Request(
+        url=f"http://127.0.0.1:15882/v1/key?{payload}",
+        method=method,
+        headers={
+            "User-Agent": "chick0/slow_postbox",
+            "Authorization": f"Bearer {current_app.config['KEY_STORE']}"
+        }
+    )
+
+    resp = urlopen(req, timeout=3)
+    return loads(s=resp.read())
+
+
 def fetch_key_store(owner_id: int, mail_id: int) -> KeyStore or None:
-    def fetch_from_api():
-        payload = parse.urlencode(query=dict(
+    try:
+        context = request(
+            method="GET",
             owner_id=owner_id,
             mail_id=mail_id
-        ))
-
-        req = Request(
-            url="http://127.0.0.1:15882/v1/key?" + payload,
-            method="GET",
-            headers={
-                "User-Agent": "chick0/slow_postbox",
-                "Authorization": f"Bearer {current_app.config['KEY_STORE']}"
-            }
         )
-
-        resp = urlopen(req, timeout=3)
-        return loads(s=resp.read())
-
-    try:
-        context = fetch_from_api()
     except HTTPError as e:
         logger = getLogger()
         logger.critical(
@@ -64,3 +73,54 @@ def fetch_key_store(owner_id: int, mail_id: int) -> KeyStore or None:
         key=context['key'],
         iv=context['iv']
     )
+
+
+def create_key_store(owner_id: int, mail_id: int) -> KeyStore or None:
+    try:
+        context = request(
+            method="POST",
+            owner_id=owner_id,
+            mail_id=mail_id
+        )
+    except HTTPError as e:
+        logger = getLogger()
+        logger.critical(
+            "*FAIL TO FETCH KEY STORE* / "
+            f"user_id={owner_id}, mail_id={mail_id}, detail={e.read().decode()}"
+        )
+
+        return None
+    except URLError as e:
+        logger = getLogger()
+        logger.critical(
+            "*FAIL TO CONNECT WITH KEY STORE API * / "
+            f"{e.reason}"
+        )
+
+        return None
+
+    return KeyStore(
+        key=context['key'],
+        iv=context['iv']
+    )
+
+
+def delete_key_store(owner_id: int, mail_id: int) -> None:
+    try:
+        request(
+            method="DELETE",
+            owner_id=owner_id,
+            mail_id=mail_id
+        )
+    except HTTPError as e:
+        logger = getLogger()
+        logger.critical(
+            "*FAIL TO FETCH KEY STORE* / "
+            f"user_id={owner_id}, mail_id={mail_id}, detail={e.read().decode()}"
+        )
+    except URLError as e:
+        logger = getLogger()
+        logger.critical(
+            "*FAIL TO CONNECT WITH KEY STORE API * / "
+            f"{e.reason}"
+        )
