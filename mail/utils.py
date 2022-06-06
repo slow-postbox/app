@@ -45,7 +45,7 @@ def request(
     return loads(s=resp.read())
 
 
-def fetch_key_store(owner_id: int, mail_id: int) -> KeyStore or None:
+def fetch_key_store(owner_id: int, mail_id: int) -> KeyStore:
     try:
         context = request(
             method="GET",
@@ -59,7 +59,7 @@ def fetch_key_store(owner_id: int, mail_id: int) -> KeyStore or None:
             f"user_id={owner_id}, mail_id={mail_id}, detail={e.read().decode()}"
         )
 
-        return None
+        raise Exception
     except URLError as e:
         logger = getLogger()
         logger.critical(
@@ -67,7 +67,7 @@ def fetch_key_store(owner_id: int, mail_id: int) -> KeyStore or None:
             f"{e.reason}"
         )
 
-        return None
+        raise Exception
 
     return KeyStore(
         key=context['key'],
@@ -75,7 +75,7 @@ def fetch_key_store(owner_id: int, mail_id: int) -> KeyStore or None:
     )
 
 
-def create_key_store(owner_id: int, mail_id: int) -> KeyStore or None:
+def create_key_store(owner_id: int, mail_id: int) -> KeyStore:
     try:
         context = request(
             method="POST",
@@ -89,7 +89,7 @@ def create_key_store(owner_id: int, mail_id: int) -> KeyStore or None:
             f"user_id={owner_id}, mail_id={mail_id}, detail={e.read().decode()}"
         )
 
-        return None
+        raise Exception
     except URLError as e:
         logger = getLogger()
         logger.critical(
@@ -97,7 +97,7 @@ def create_key_store(owner_id: int, mail_id: int) -> KeyStore or None:
             f"{e.reason}"
         )
 
-        return None
+        raise Exception
 
     return KeyStore(
         key=context['key'],
