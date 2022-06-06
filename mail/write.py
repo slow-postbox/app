@@ -11,7 +11,6 @@ from flask import render_template
 from app import db
 from app.models import User
 from app.models import Mail
-from app.models import KeyStore
 from app.utils import login_after
 from app.utils import login_required
 from app.utils import fetch_mail
@@ -281,20 +280,14 @@ def delete(user: User, mail_id: int):
         id=mail_id,
         owner_id=user.id,
         lock=False
-    ).first()
+    ).delete()
 
-    if mail is None:
+    if mail == 0:
         return resp(
             key="error",
             message="삭제할 편지를 찾지 못 했습니다."
         )
 
-    KeyStore.query.filter_by(
-        owner_id=user.id,
-        mail_id=mail.id,
-    ).delete()
-
-    db.session.delete(mail)
     db.session.commit()
 
     return resp(

@@ -6,7 +6,6 @@ from Crypto.Util.Padding import unpad
 from Crypto.Random import get_random_bytes
 
 from app import db
-from app.models import KeyStore
 
 Key = namedtuple("Key", ['key', 'iv'])
 
@@ -42,12 +41,14 @@ def decrypt(key_store: Key, result: bytes) -> str:
 
 
 def encrypt_mail(owner_id: int, mail_id: int, content: str) -> str:
+    # TODO:key store with api
     key_store = KeyStore.query.filter_by(
         owner_id=owner_id,
         mail_id=mail_id
     ).first()
 
     if key_store is None:
+        # TODO:key store with api
         key_store = KeyStore()
         key_store.owner_id = owner_id
         key_store.mail_id = mail_id
@@ -67,6 +68,7 @@ def encrypt_mail(owner_id: int, mail_id: int, content: str) -> str:
 
 
 def decrypt_mail(owner_id: int, mail_id: int, result: str) -> str:
+    # TODO:key store with api
     key_store = KeyStore.query.filter_by(
         owner_id=owner_id,
         mail_id=mail_id
