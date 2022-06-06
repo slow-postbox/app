@@ -3,6 +3,7 @@ from urllib import parse
 from urllib.request import Request
 from urllib.request import urlopen
 from urllib.error import HTTPError
+from urllib.error import URLError
 from logging import getLogger
 from collections import namedtuple
 
@@ -37,7 +38,7 @@ def fetch_key_store(owner_id: int, mail_id: int) -> KeyStore or None:
             }
         )
 
-        resp = urlopen(req)
+        resp = urlopen(req, timeout=3)
         return loads(s=resp.read())
 
     try:
@@ -47,6 +48,14 @@ def fetch_key_store(owner_id: int, mail_id: int) -> KeyStore or None:
         logger.critical(
             "*FAIL TO FETCH KEY STORE* / "
             f"user_id={owner_id}, mail_id={mail_id}, detail={e.read().decode()}"
+        )
+
+        return None
+    except URLError as e:
+        logger = getLogger()
+        logger.critical(
+            "*FAIL TO CONNECT WITH KEY STORE API * / "
+            f"{e.reason}"
         )
 
         return None
