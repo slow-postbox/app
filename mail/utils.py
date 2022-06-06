@@ -1,60 +1,57 @@
-from os import environ
+from json import loads
+from urllib import parse
+from urllib.request import Request
+from urllib.request import urlopen
+from urllib.error import HTTPError
+from logging import getLogger
+from collections import namedtuple
 
-from smtplib import SMTP
-from email.mime.text import MIMEText
+from flask import current_app
 
-SMTP_HOST = environ['SMTP_HOST']
-SMTP_PORT = int(environ['SMTP_PORT'])
-SMTP_USER = environ['SMTP_USER']
-SMTP_PASSWORD = environ['SMTP_PASSWORD']
+from .send import send_token
+from .send import send_password_reset
 
 
-def send_token(email: str, code: str, ip: str):
-    html = "\n".join([
-        f"<h1>{code}</h1>",
-        f"<p>인증 코드는 3분후 만료됩니다.</p>",
-        "<br>",
-        "<br>",
-        f"<p>요청 IP : {ip}</p>",
-    ])
+KeyStore = namedtuple(
+    "KeyStore",
+    [
+        'key',
+        'iv'
+    ]
+)
 
-    payload = MIMEText(html, "html", "utf-8")
-    payload['From'] = SMTP_USER
-    payload['Subject'] = f"{environ['TITLE']} - 이메일 인증 코드"
 
-    with SMTP(SMTP_HOST, SMTP_PORT) as client:
-        client.starttls()
-        client.login(
-            user=SMTP_USER,
-            password=SMTP_PASSWORD
+def fetch_key_store(owner_id: int, mail_id: int) -> KeyStore or None:
+    def fetch_from_api():
+        payload = parse.urlencode(query=dict(
+            owner_id=owner_id,
+            mail_id=mail_id
+        ))
+
+        req = Request(
+            url="http://127.0.0.1:15882/v1/key?" + payload,
+            method="GET",
+            headers={
+                "User-Agent": "chick0/slow_postbox",
+                "Authorization": f"Bearer {current_app.config['KEY_STORE']}"
+            }
         )
 
-        client.sendmail(
-            from_addr=SMTP_USER,
-            to_addrs=[email],
-            msg=payload.as_string()
+        resp = urlopen(req)
+        return loads(s=resp.read())
+
+    try:
+        context = fetch_from_api()
+    except HTTPError as e:
+        logger = getLogger()
+        logger.critical(
+            "*FAIL TO FETCH KEY STORE* / "
+            f"user_id={owner_id}, mail_id={mail_id}, detail={e.read().decode()}"
         )
 
+        return None
 
-def send_password_reset(email: str, url: str):
-    html = "\n".join([
-        f"<p><a href=\"{url}\" target=\"_blank\">다음 링크</a>로 접속해 비밀번호를 재설정 해주세요.</p>",
-        "<p>해당 비밀번호 재설정 요청은 5분뒤 만료됩니다.</p>",
-    ])
-
-    payload = MIMEText(html, "html", "utf-8")
-    payload['From'] = SMTP_USER
-    payload['Subject'] = f"{environ['TITLE']} - 비밀번호 재설정"
-
-    with SMTP(SMTP_HOST, SMTP_PORT) as client:
-        client.starttls()
-        client.login(
-            user=SMTP_USER,
-            password=SMTP_PASSWORD
-        )
-
-        client.sendmail(
-            from_addr=SMTP_USER,
-            to_addrs=[email],
-            msg=payload.as_string()
-        )
+    return KeyStore(
+        key=context['key'],
+        iv=context['iv']
+    )

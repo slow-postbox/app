@@ -23,6 +23,9 @@ def create_app():
     app.config['SESSION_COOKIE_SAMESITE'] = "Strict"
     app.config['REDIS_URL'] = environ['REDIS_URL']
 
+    from key import get
+    app.config['KEY_STORE'] = get()
+
     __import__("app.models")
     db.init_app(app=app)
     migrate.init_app(app=app, db=db)
