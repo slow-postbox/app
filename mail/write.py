@@ -20,6 +20,7 @@ from app.utils import get_error_message
 from app.utils import set_error_message
 from mail.crypto import encrypt_mail
 from mail.crypto import decrypt_mail
+from mail.utils import delete_key_store
 
 bp = Blueprint("write", __name__, url_prefix="/")
 
@@ -289,6 +290,11 @@ def delete(user: User, mail_id: int):
         )
 
     db.session.commit()
+
+    delete_key_store(
+        owner_id=user.id,
+        mail_id=mail_id
+    )
 
     return resp(
         key="message",

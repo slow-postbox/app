@@ -3,9 +3,8 @@ from collections import namedtuple
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad
 from Crypto.Util.Padding import unpad
-from Crypto.Random import get_random_bytes
 
-from app import db
+from mail.utils import fetch_key_store
 
 Key = namedtuple("Key", ['key', 'iv'])
 
@@ -41,22 +40,10 @@ def decrypt(key_store: Key, result: bytes) -> str:
 
 
 def encrypt_mail(owner_id: int, mail_id: int, content: str) -> str:
-    # TODO:key store with api
-    key_store = KeyStore.query.filter_by(
+    key_store = fetch_key_store(
         owner_id=owner_id,
         mail_id=mail_id
-    ).first()
-
-    if key_store is None:
-        # TODO:key store with api
-        key_store = KeyStore()
-        key_store.owner_id = owner_id
-        key_store.mail_id = mail_id
-        key_store.key = get_random_bytes(32).hex()
-        key_store.iv = get_random_bytes(16).hex()
-
-        db.session.add(key_store)
-        db.session.commit()
+    )
 
     return encrypt(
         key_store=Key(
@@ -68,14 +55,10 @@ def encrypt_mail(owner_id: int, mail_id: int, content: str) -> str:
 
 
 def decrypt_mail(owner_id: int, mail_id: int, result: str) -> str:
-    # TODO:key store with api
-    key_store = KeyStore.query.filter_by(
+    key_store = fetch_key_store(
         owner_id=owner_id,
         mail_id=mail_id
-    ).first()
-
-    if key_store is None:
-        raise Exception("FAIL TO GET KEY STORE")
+    )
 
     return decrypt(
         key_store=Key(

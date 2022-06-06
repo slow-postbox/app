@@ -53,6 +53,13 @@ def fetch_key_store(owner_id: int, mail_id: int) -> KeyStore:
             mail_id=mail_id
         )
     except HTTPError as e:
+        if e.code == 404:
+            # None -> create *NEW*
+            return create_key_store(
+                owner_id=owner_id,
+                mail_id=mail_id
+            )
+
         logger = getLogger()
         logger.critical(
             "*FAIL TO FETCH KEY STORE* / "
