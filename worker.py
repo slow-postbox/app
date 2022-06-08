@@ -49,9 +49,19 @@ def register_schedule(delay: int):
 
 
 def main():
-    # TODO:유저 삭제
+    @register_schedule(timedelta(hours=3).seconds)
     def remove_old_user():
-        return
+        session = session_factory()
+        today = datetime.today()
+        for user in session.query(User).filter(
+            User.last_login < today - timedelta(days=365)
+        ).limit(50).all():
+            if session.query(Mail).filter_by(
+                owner_id=user.id
+            ).count() == 0:
+                logger.info(f"user deleted mail={user.email}")
+                session.delete(user)
+                session.commit()
 
     @register_schedule(timedelta(minutes=30).seconds)
     def remove_old_login_history():
@@ -149,4 +159,3 @@ if __name__ == "__main__":
         s.run()
     except KeyboardInterrupt:
         logger.info("exited!")
-
