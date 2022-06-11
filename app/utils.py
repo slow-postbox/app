@@ -23,14 +23,6 @@ from app.models import PrivacyPolicy
 MAIL_KEY_NAME = "slow_post:mail:{host}"
 MAIL_LIFETIME = timedelta(hours=1).seconds
 MAIL_TRUE = token_bytes(16)
-MAIL_BAN_HOST = [
-    x
-    for x in [
-        x.strip()
-        for x in open("MAIL_BAN_HOST.txt", mode="r", encoding="utf-8").read().split("\n")
-    ]
-    if len(x) != 0
-]
 
 CSRF_TOKEN_LENGTH = 64
 CSRF_KEY_NAME = "slow_post:csrf:{ip}:{user_id}:{path}"
@@ -121,8 +113,6 @@ def test_email(email: str) -> bool or str:
         return redis.get(name=name) == MAIL_TRUE
 
     user, host = email.rsplit("@", 1)
-    if host in MAIL_BAN_HOST:
-        return "해당 이메일은 사용하실 수 없습니다."
 
     name = MAIL_KEY_NAME.format(
         host=host
