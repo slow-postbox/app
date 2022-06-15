@@ -46,7 +46,7 @@ def history(user: User):
     )
 
 
-@bp.get("/history/reset")
+@bp.get("/reset")
 @login_required
 def reset_history(user: User):
     pws = PasswordReset.query.filter_by(
@@ -56,7 +56,7 @@ def reset_history(user: User):
     ).all()
 
     return render_template(
-        "dashboard/reset-history.html",
+        "dashboard/reset.html",
         pws=pws,
     )
 
