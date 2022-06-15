@@ -1,4 +1,5 @@
 from flask import Blueprint
+from flask import session
 from flask import request
 from flask import redirect
 from flask import url_for
@@ -107,4 +108,62 @@ def lock_post(user: User):
 @bp.get("/quit-service")
 @login_required
 def quit_service(user: User):
-    return
+    emoji = {
+        True: "✔️",
+        False: "❌"
+    }
+
+    mail = Mail.query.filter_by(
+        owner_id=user.id
+    ).count()
+
+    protect = UserLock.query.filter_by(
+        owner_id=user.id
+    ).all()
+
+    return render_template(
+        "dashboard/quit.html",
+        error=get_error_message(),
+        admin=emoji.get(not user.admin),
+        mail=emoji.get(mail == 0),
+        protect=emoji.get(len(protect) == 0),
+        protects=protect,
+    )
+
+
+@bp.post("/quit-service")
+@login_required
+def quit_service_post(user: User):
+    def to(message: str):
+        error_id = set_error_message(message=message)
+        return redirect(url_for("dashboard.quit_service", error=error_id))
+
+    if user.admin:
+        return to(message="관리자는 탈퇴 할 수 없습니다.")
+
+    if Mail.query.filter_by(
+        owner_id=user.id
+    ).count() != 0:
+        return to(message="작성한 편지가 있어서 해당 요청을 승인 할 수 없습니다.")
+
+    if UserLock.query.filter_by(
+        owner_id=user.id
+    ).count() != 0:
+        return to(message="계정 잠금 요청에 의해 해당 요청을 승인 할 수 없습니다.")
+
+    LoginHistory.query.filter_by(
+        owner_id=user.id
+    ).delete()
+    PasswordReset.query.filter_by(
+        owner_id=user.id
+    ).delete()
+
+    db.session.delete(user)
+    db.session.commit()
+
+    for key in list(session.keys()):
+        del session[key]
+
+    return render_template(
+        "dashboard/quit-next.html"
+    )
