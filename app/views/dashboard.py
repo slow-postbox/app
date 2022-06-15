@@ -1,4 +1,7 @@
 from flask import Blueprint
+from flask import request
+from flask import redirect
+from flask import url_for
 from flask import render_template
 
 from app import db
@@ -6,8 +9,11 @@ from app.models import User
 from app.models import LoginHistory
 from app.models import Mail
 from app.models import PasswordReset
+from app.models import UserLock
 from app.utils import get_error_message
+from app.utils import set_error_message
 from app.utils import login_required
+from app.utils import admin_only
 
 bp = Blueprint("dashboard", __name__, url_prefix="/dashboard")
 
@@ -59,6 +65,43 @@ def reset_history(user: User):
         "dashboard/reset.html",
         pws=pws,
     )
+
+
+@bp.get("/user-lock")
+@login_required
+@admin_only
+def lock(user: User):
+    return render_template(
+        "dashboard/lock.html",
+        error=get_error_message(),
+        message=get_error_message("message"),
+    )
+
+
+@bp.post("/user-lock")
+@login_required
+@admin_only
+def lock_post(user: User):
+    target = User.query.filter_by(
+        email=request.form.get("email").strip()
+    ).first()
+
+    if target is None:
+        error_id = set_error_message(message="등록된 계정이 아닙니다.")
+        return redirect(url_for("dashboard.lock", error=error_id))
+
+    user_lock = UserLock()
+    user_lock.owner_id = target.id
+    user_lock.reason = request.form.get("reason").strip()
+
+    if len(user_lock.reason) == 0:
+        user_lock.reason = "* 등록된 사유가 없습니다."
+
+    db.session.add(user_lock)
+    db.session.commit()
+
+    message_id = set_error_message(message="해당 계정이 잠겼습니다.")
+    return redirect(url_for("dashboard.lock", message=message_id))
 
 
 @bp.get("/quit-service")

@@ -19,6 +19,11 @@
             <a class="button is-link is-medium" href="/dashboard/history">로그인 기록</a>
             <a class="button is-info is-medium" href="/dashboard/reset">비밀번호 재설정 기록</a>
         </div>
+    {% if user.admin %}
+        <div class="block">
+            <a class="button is-warning is-medium" href="/dashboard/user-lock">계정 잠금</a>
+        </div>
+    {% endif %}
     </div>
 </section>
 
