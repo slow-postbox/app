@@ -1,4 +1,5 @@
 from json import loads
+from functools import wraps
 from urllib import parse
 from urllib.request import Request
 from urllib.request import urlopen
@@ -8,10 +9,13 @@ from logging import getLogger
 from collections import namedtuple
 
 from flask import current_app
+from flask import redirect
+from flask import url_for
 
 from .send import send_token
 from .send import send_password_reset
-
+from app.models import UserLock
+from app.utils import set_error_message
 
 KeyStore = namedtuple(
     "KeyStore",
@@ -131,3 +135,21 @@ def delete_key_store(owner_id: int, mail_id: int) -> None:
             "*FAIL TO CONNECT WITH KEY STORE API * / "
             f"{e.reason}"
         )
+
+
+def check_user_lock(f):
+    @wraps(f)
+    def decorator(*args, **kwargs):
+        user = kwargs['user']
+
+        user_lock = UserLock.query.filter_by(
+            owner_id=user.id
+        ).count()
+
+        if user_lock != 0:
+            error_id = set_error_message(message="계정 잠금 요청에 의해 저장된 편지를 수정 및 삭제 할 수 없습니다.")
+            return redirect(url_for("dashboard.index", error=error_id))
+
+        return f(*args, **kwargs)
+
+    return decorator

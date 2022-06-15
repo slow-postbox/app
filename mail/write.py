@@ -21,6 +21,7 @@ from app.utils import set_error_message
 from mail.crypto import encrypt_mail
 from mail.crypto import decrypt_mail
 from mail.utils import delete_key_store
+from mail.utils import check_user_lock
 
 bp = Blueprint("write", __name__, url_prefix="/")
 
@@ -177,6 +178,7 @@ def edit(user: User, mail: Mail, mail_id: int):
 @bp.post("/edit/<int:mail_id>")
 @login_required
 @fetch_mail
+@check_user_lock
 def edit_post(user: User, mail: Mail, mail_id: int):
     try:
         csrf = request.form['csrf']
@@ -272,6 +274,7 @@ def edit_post(user: User, mail: Mail, mail_id: int):
 
 @bp.get("/delete/<int:mail_id>")
 @login_required
+@check_user_lock
 def delete(user: User, mail_id: int):
     def resp(key: str, message: str):
         kwargs = {key: set_error_message(message=message)}
