@@ -3,32 +3,12 @@
 <section class="section">
     <div class="container">
         <h1 class="title is-1">회원가입</h1>
+        <p class="subtitle">서비스 이용약관과 개인정보 처리방침에 동의해야 서비스를 이용 할 수 있습니다.</p>
     {% if error is not none %}
         <div class="notification is-danger">
             {{ error }}
         </div>
     {% endif %}
-
-        <div class="box">
-            <h2 class="title is-2">서비스 이용약관</h2>
-            <div class="content">
-                {{ tos.html|safe }}
-            </div>
-        </div>
-
-        <div class="box">
-            <h2 class="title is-2">개인정보 처리방침</h2>
-            <div class="content">
-                {{ privacy.html|safe }}
-            </div>
-        </div>
-    </div>
-</section>
-
-<section class="section">
-    <div class="container">
-        <h1 class="title is-1">회원가입</h1>
-        <p class="subtitle">서비스 이용약관과 개인정보 처리방침에 동의해야 서비스를 이용 할 수 있습니다.</p>
         <form method="post">
             <div class="field">
                 <label class="label" for="email-input">이메일</label>
@@ -47,13 +27,13 @@
             <div class="block">
                 <div class="field">
                     <label class="checkbox" for="tosCheck">
-                        <input id="tosCheck" name="tos_agree" type="checkbox">서비스 이용약관을 <b>확인</b>했으며 이에 <b>동의</b>합니다.
+                        <input id="tosCheck" name="tos_agree" type="checkbox"><a href="/tos">서비스 이용약관</a>을 <b>확인</b>했으며 이에 <b>동의</b>합니다.
                     </label>
                 </div>
 
                 <div class="field">
                     <label class="checkbox" for="privacyCheck">
-                        <input id="privacyCheck" name="privacy_agree" type="checkbox">개인정보 처리방침을 <b>확인</b>했으며 이에 <b>동의</b>합니다.
+                        <input id="privacyCheck" name="privacy_agree" type="checkbox"><a href="/privacy">개인정보 처리방침</a>을 <b>확인</b>했으며 이에 <b>동의</b>합니다.
                     </label>
                 </div>
             </div>

@@ -160,10 +160,14 @@ def sign_up():
 
     tos = TermsOfService.query.order_by(
         TermsOfService.id.desc()
+    ).with_entities(
+        TermsOfService.id
     ).first()
 
     privacy = PrivacyPolicy.query.order_by(
         PrivacyPolicy.id.desc()
+    ).with_entities(
+        PrivacyPolicy.id
     ).first()
 
     if tos is None or privacy is None:
@@ -177,8 +181,6 @@ def sign_up():
     return render_template(
         "auth/sign-up.html",
         error=get_error_message(),
-        tos=tos,
-        privacy=privacy,
     )
 
 
