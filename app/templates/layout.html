@@ -5,6 +5,13 @@
         <title>{{ g.title }}</title>
         <meta name="author" content="chick_0">
         <meta name="viewport" content="width=device-width,initial-scale=1.0">
+        <meta name="description" content="웹 사이트에서 편지를 작성하면 지정한 날짜에 도착하는 프로그램입니다.">
+        <meta property="og:type" content="website">
+        <meta property="og:locale" content="ko_KR">
+        <meta property="og:title" content="{{ g.title }}">
+        <meta property="og:description" content="웹 사이트에서 편지를 작성하면 지정한 날짜에 도착하는 프로그램입니다.">
+        <meta property="og:url" content="{{ g.host }}">
+        <link rel="canonical" href="{{ g.host }}">
         <link rel="stylesheet" href="/static/css/bulma.min.css">
     {% if g.editor_css is true %}
         <link rel="stylesheet" href="/static/css/toastui-editor.min.css">

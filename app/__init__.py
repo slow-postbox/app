@@ -44,6 +44,7 @@ def create_app():
     def before_request():
         # set global
         g.title = environ['TITLE']
+        g.host = environ['HOST']
 
     @app.after_request
     def after_request(response):
