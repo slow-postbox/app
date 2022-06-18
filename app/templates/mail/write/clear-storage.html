@@ -1,0 +1,17 @@
+{% extends 'layout.html' %}
+{% block content %}
+<section class="section">
+    <div class="container">
+        <p class="subtitle">페이지 이동중입니다...</p>
+    </div>
+</section>
+{% endblock %}
+
+{% block script %}
+<script src="/static/js/autosave.js"></script>
+<script>
+    remove_autosave('{{ mail_id }}'); setTimeout(() => {
+        location.replace("{{ url }}");
+    }, 960);
+</script>
+{% endblock %}

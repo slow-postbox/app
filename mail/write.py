@@ -153,7 +153,11 @@ def create_new_post(user: User):
 
     db.session.commit()
 
-    return redirect(url_for("mail.write.edit", mail_id=mail.id))
+    return render_template(
+        "mail/write/clear-storage.html",
+        mail_id='new',
+        url=url_for("mail.write.edit", mail_id=mail.id),
+    )
 
 
 @bp.get("/edit/<int:mail_id>")
@@ -268,8 +272,11 @@ def edit_post(user: User, mail: Mail, mail_id: int):
         error_id = set_error_message(message=error)
         return redirect(url_for("mail.write.edit", mail_id=mail_id, error=error_id))
 
-    # without error message
-    return redirect(url_for("mail.write.edit", mail_id=mail_id))
+    return render_template(
+        "mail/write/clear-storage.html",
+        mail_id=mail_id,
+        url=url_for("mail.write.edit", mail_id=mail_id),
+    )
 
 
 @bp.get("/delete/<int:mail_id>")
