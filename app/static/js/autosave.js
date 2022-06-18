@@ -1,6 +1,10 @@
 let task_id = undefined;
 
-function setupAutosave(mail_id){
+function get_storage_id(mail_id){
+    return `slow_postbox:mail:${mail_id}`;
+}
+
+function setup_autosave(mail_id){
     function startTask(){
         task_id = setInterval(() => {
             let markdown = editor.getMarkdown();
@@ -11,7 +15,7 @@ function setupAutosave(mail_id){
         }, 1000);    
     }
     
-    const STORAGE_KEY = `slow_postbox:mail:${mail_id}`;
+    const STORAGE_KEY = get_storage_id(mail_id);
 
     let backupData = sessionStorage.getItem(STORAGE_KEY);
 
@@ -27,7 +31,11 @@ function setupAutosave(mail_id){
     }
 }
 
-function clearAutosave(mail_id){
-    const STORAGE_KEY = `slow_postbox:mail:${mail_id}`;
+function clear_autosave(){
     clearInterval(task_id);
+}
+
+function remove_autosave(mail_id){
+    const STORAGE_KEY = get_storage_id(mail_id);
+    sessionStorage.removeItem(STORAGE_KEY);
 }

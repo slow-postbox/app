@@ -67,9 +67,9 @@
 
     const csrf = "{{ csrf }}";
 
-    setupAutosave({{ m.id }});
+    setup_autosave({{ m.id }});
     function fillForm(lock){
-        clearAutosave({{ m.id }});
+        clear_autosave();
         document.querySelector("input[name=title]").value = document.getElementById("title").value;
         document.querySelector("input[name=date]").value = document.getElementById("date").value;
         document.querySelector("textarea[name=content]").value = editor.getMarkdown();
