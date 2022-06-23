@@ -132,7 +132,7 @@ def create_new_post(user: User):
     mail.owner_id = user.id
     mail.send_date = send_date
     mail.title = request.form.get("title", "제목 없는 편지").strip()[:100]
-    mail.content = "content"
+    mail.content = content
     mail.lock = True if request.form.get("lock", "false") == 'true' else False
 
     if len(mail.title) == 0:
