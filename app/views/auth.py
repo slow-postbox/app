@@ -1,5 +1,4 @@
 from os import environ
-from re import compile
 from random import choices
 from hashlib import sha512
 from secrets import token_bytes
@@ -7,6 +6,7 @@ from datetime import datetime
 from datetime import timedelta
 
 from flask import Blueprint
+from flask import current_app
 from flask import session
 from flask import request
 from flask import redirect
@@ -22,7 +22,8 @@ from app.models import TermsOfService
 from app.models import PrivacyPolicy
 from app.models import PasswordReset
 from app.utils import get_ip
-from app.utils import test_email
+from app.utils import test_email_with_regex
+from app.utils import test_email_with_dns
 from app.utils import login_block
 from app.utils import get_error_message
 from app.utils import set_error_message
@@ -30,7 +31,6 @@ from mail.utils import send_token
 from mail.utils import send_password_reset
 
 bp = Blueprint("auth", __name__, url_prefix="/auth")
-re = compile(r'(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)')
 
 alert = "\n".join([
     "<p>- <b>{name}</b>이 업데이트 되었습니다.</p>",
@@ -58,7 +58,9 @@ def login():
     return render_template(
         "auth/login.html",
         error=get_error_message(),
+        error_social=get_error_message("error_social"),
         message=message,
+        social_login_available=current_app.config['social_login_available']
     )
 
 
@@ -72,7 +74,7 @@ def login_post():
     try:
         email = request.form['email'].strip()
 
-        if re.match(email) is None:
+        if not test_email_with_regex(email=email):
             return error("이메일 형식이 올바르지 않습니다.")
     except KeyError:
         return error("이메일을 입력해주세요.")
@@ -181,6 +183,7 @@ def sign_up():
     return render_template(
         "auth/sign-up.html",
         error=get_error_message(),
+        has_social_login=len(current_app.config['social_login_available']) != 0
     )
 
 
@@ -206,7 +209,7 @@ def sign_up_post():
     try:
         email = request.form['email'].strip()
 
-        if re.match(email) is None:
+        if not test_email_with_regex(email=email):
             return error("이메일 형식이 올바르지 않습니다.")
 
         if len(email) > 96:
@@ -215,10 +218,8 @@ def sign_up_post():
         return error("이메일을 입력해주세요.")
 
     # DNS 활용해 이메일 검증하기
-    result = test_email(email=email)
-    if result is True:
-        pass
-    else:
+    result = test_email_with_dns(email=email)
+    if len(result) != 0:
         return error(message=result)
 
     try:
@@ -354,17 +355,21 @@ def password_reset_post():
 
     email = request.form.get("email", "").strip()
 
-    if re.match(email) is None:
+    if not test_email_with_regex(email=email):
         return error("이메일 형식이 올바르지 않습니다.")
 
     user = User.query.filter_by(
         email=email
     ).with_entities(
         User.id,
-        User.email
+        User.email,
+        User.password
     ).first()
 
     if user is not None:
+        if user.password.startswith("social-login-account"):
+            return error("소셜 계정은 비밀번호를 초기화 할 수 없습니다.")
+
         pw = PasswordReset.query.filter_by(
             owner_id=user.id,
             used_date=None

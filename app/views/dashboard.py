@@ -50,12 +50,16 @@ def history(user: User):
     return render_template(
         "dashboard/history.html",
         histories=login_history,
+        reset=user.password.startswith( "social-login-account")
     )
 
 
 @bp.get("/reset")
 @login_required
 def reset_history(user: User):
+    if user.password.startswith("social-login-account"):
+        return redirect(url_for("dashboard.index"))
+
     pws = PasswordReset.query.filter_by(
         owner_id=user.id,
     ).order_by(

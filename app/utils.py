@@ -1,3 +1,4 @@
+from re import compile
 from secrets import token_bytes
 from datetime import datetime
 from datetime import timedelta
@@ -19,6 +20,8 @@ from app.models import Mail
 from app.models import Notice
 from app.models import TermsOfService
 from app.models import PrivacyPolicy
+
+re = compile(r'(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)')
 
 MAIL_KEY_NAME = "slow_post:mail:{host}"
 MAIL_LIFETIME = timedelta(hours=1).seconds
@@ -94,7 +97,11 @@ def set_error_message(message: str or list):
     return error_id
 
 
-def test_email(email: str) -> bool or str:
+def test_email_with_regex(email: str) -> bool:
+    return re.match(email) is not None
+
+
+def test_email_with_dns(email: str) -> str:
     def safe_resolve(target: str) -> bool:
         try:
             resolve(qname=target)
@@ -120,7 +127,7 @@ def test_email(email: str) -> bool or str:
 
     # 검증 건너뛰기
     if check_redis() is True:
-        return True
+        return ""
 
     try:
         dns = resolve(
@@ -145,7 +152,7 @@ def test_email(email: str) -> bool or str:
                     count += 1
                     if safe_resolve(target=name):
                         set_redis()
-                        return True
+                        return ""
 
     return "해당 이메일 주소는 MX 레코드 정보가 올바르지 않아 사용하실 수 없습니다."
 

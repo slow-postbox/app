@@ -17,7 +17,9 @@
         <div class="block buttons">
             <a class="button is-danger is-medium" href="/dashboard/quit-service">회원 탈퇴</a>
             <a class="button is-link is-medium" href="/dashboard/history">로그인 기록</a>
+        {% if reset is false %}
             <a class="button is-info is-medium" href="/dashboard/reset">비밀번호 재설정 기록</a>
+        {% endif %}
         </div>
     {% if user.admin %}
         <div class="block">

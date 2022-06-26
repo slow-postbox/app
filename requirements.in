@@ -7,4 +7,5 @@ pycryptodome
 mistune
 dnspython
 python-dotenv
+requests
 waitress
