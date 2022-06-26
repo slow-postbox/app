@@ -1,140 +1,92 @@
-from json import loads
 from functools import wraps
 from urllib import parse
-from urllib.request import Request
-from urllib.request import urlopen
-from urllib.error import HTTPError
-from urllib.error import URLError
-from logging import getLogger
-from collections import namedtuple
+from typing import NamedTuple
 
 from flask import current_app
 from flask import redirect
 from flask import url_for
+from requests import get
+from requests import post
+from requests import delete
 
-from .send import send_token
-from .send import send_password_reset
+from .send import send_token as _send_token
+from .send import send_password_reset as _send_password_reset
 from app.models import UserLock
 from app.utils import set_error_message
 
-KeyStore = namedtuple(
-    "KeyStore",
-    [
-        'key',
-        'iv'
-    ]
-)
+send_token = _send_token
+send_password_reset = _send_password_reset
 
 
-def request(
-        method: str,  # GET or POST
-        owner_id: int,
-        mail_id: int
-) -> dict:
+class KeyStore(NamedTuple):
+    key: str
+    iv: str
+
+
+def get_headers() -> dict:
+    return {
+        "User-Agent": "chick0/slow_postbox",
+        "Authorization": f"Bearer {current_app.config['KEY_STORE']}"
+    }
+
+
+def get_url(owner_id: int, mail_id: int) -> str:
     payload = parse.urlencode(query=dict(
         owner_id=owner_id,
         mail_id=mail_id
     ))
 
-    req = Request(
-        url=f"http://127.0.0.1:15882/v1/key?{payload}",
-        method=method,
-        headers={
-            "User-Agent": "chick0/slow_postbox",
-            "Authorization": f"Bearer {current_app.config['KEY_STORE']}"
-        }
-    )
-
-    resp = urlopen(req, timeout=3)
-    return loads(s=resp.read())
+    return f"http://127.0.0.1:15882/v1/key?{payload}"
 
 
 def fetch_key_store(owner_id: int, mail_id: int) -> KeyStore:
-    try:
-        context = request(
-            method="GET",
+    resp = get(
+        url=get_url(
+            owner_id=owner_id,
+            mail_id=mail_id
+        ),
+        headers=get_headers()
+    )
+
+    if resp.status_code == 404:
+        return create_key_store(
             owner_id=owner_id,
             mail_id=mail_id
         )
-    except HTTPError as e:
-        if e.code == 404:
-            # None -> create *NEW*
-            return create_key_store(
-                owner_id=owner_id,
-                mail_id=mail_id
-            )
 
-        logger = getLogger()
-        logger.critical(
-            "*FAIL TO FETCH KEY STORE* / "
-            f"user_id={owner_id}, mail_id={mail_id}, detail={e.read().decode()}"
-        )
-
-        raise Exception
-    except URLError as e:
-        logger = getLogger()
-        logger.critical(
-            "*FAIL TO CONNECT WITH KEY STORE API * / "
-            f"{e.reason}"
-        )
-
-        raise Exception
+    json = resp.json()
 
     return KeyStore(
-        key=context['key'],
-        iv=context['iv']
+        key=json['key'],
+        iv=json['iv']
     )
 
 
 def create_key_store(owner_id: int, mail_id: int) -> KeyStore:
-    try:
-        context = request(
-            method="POST",
+    resp = post(
+        url=get_url(
             owner_id=owner_id,
             mail_id=mail_id
-        )
-    except HTTPError as e:
-        logger = getLogger()
-        logger.critical(
-            "*FAIL TO FETCH KEY STORE* / "
-            f"user_id={owner_id}, mail_id={mail_id}, detail={e.read().decode()}"
-        )
+        ),
+        headers=get_headers()
+    )
 
-        raise Exception
-    except URLError as e:
-        logger = getLogger()
-        logger.critical(
-            "*FAIL TO CONNECT WITH KEY STORE API * / "
-            f"{e.reason}"
-        )
-
-        raise Exception
+    json = resp.json()
 
     return KeyStore(
-        key=context['key'],
-        iv=context['iv']
+        key=json['key'],
+        iv=json['iv']
     )
 
 
 def delete_key_store(owner_id: int, mail_id: int) -> None:
-    try:
-        request(
-            method="DELETE",
+    delete(
+        url=get_url(
             owner_id=owner_id,
-            mail_id=mail_id
-        )
-    except HTTPError as e:
-        logger = getLogger()
-        logger.critical(
-            "*FAIL TO FETCH KEY STORE* / "
-            f"user_id={owner_id}, mail_id={mail_id}, detail={e.read().decode()}"
-        )
-    except URLError as e:
-        logger = getLogger()
-        logger.critical(
-            "*FAIL TO CONNECT WITH KEY STORE API * / "
-            f"{e.reason}"
-        )
+            mail_id=mail_id,
+        ),
+        headers=get_headers()
+    )
 
 
 def check_user_lock(f):
