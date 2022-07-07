@@ -2,6 +2,8 @@
 {% block content %}
 <section class="section">
     <div class="container">
+        <h1 class="title is-1">오류</h1>
+        <p class="subtitle">사용자 인증 과정에서 오류가 발생했습니다.</p>
     {% if error is not none %}
         <div class="notification is-danger">
             {{ error }}
