@@ -10,12 +10,10 @@ from requests import post
 from requests import delete
 
 from .send import send_token as _send_token
-from .send import send_password_reset as _send_password_reset
 from app.models import UserLock
 from app.utils import set_error_message
 
 send_token = _send_token
-send_password_reset = _send_password_reset
 
 
 class KeyStore(NamedTuple):
