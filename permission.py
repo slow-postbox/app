@@ -18,12 +18,11 @@ def init_engine():
 
 def select_user(session) -> User:
     print("\n* select user to upgrade permission *\n")
-    user_id = int(input("(int) user_id : "))
     user = session.query(User).filter_by(
-        id=user_id
+        email=input("user.email : ")
     ).first()
 
-    print("\n* selected user is", user.email)
+    print("\n* selected user is", user.oauth, user.oauth_id, user.email)
     return user
 
 
