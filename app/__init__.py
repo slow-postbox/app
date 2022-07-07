@@ -38,25 +38,18 @@ def create_app():
     for view in views.__all__:
         app.register_blueprint(getattr(views, view).bp)
 
-    import social
-    social_bp = Blueprint("social", "social", url_prefix="/social")
-    social_login_available = []
+    social = Blueprint("social", "social", url_prefix="/social")
 
-    for name, oauth in [(x, getattr(social, x)) for x in social.__all__]:
-        bp = Blueprint(name, oauth.__name__, url_prefix=f"/{name}")
-        for view in oauth.__all__:
-            bp.register_blueprint(getattr(oauth, view).bp)
+    for service in [__import__(x) for x in [
+        "kakao",
+    ]]:
+        sbp = Blueprint(service.__name__, service.__name__, url_prefix=f"/{service.__name__}")
+        for x in [getattr(service, x).bp for x in service.__all__]:
+            sbp.register_blueprint(blueprint=x)
 
-        if len(getattr(bp, "_blueprints")) == 0:
-            logger.critical(f"social login '{name}' is not ready!")
-        else:
-            social_login_available.append(name)
-            social_bp.register_blueprint(blueprint=bp)
+        social.register_blueprint(sbp)
 
-    if len(social_login_available) != 0:
-        app.register_blueprint(blueprint=social_bp)
-
-    app.config['social_login_available'] = social_login_available
+    app.register_blueprint(social)
 
     from app import template_filters
     for template_filter in [

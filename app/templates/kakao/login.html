@@ -1,0 +1,12 @@
+{% block script %}
+    <script src="/static/kakao/kakao.min.js"></script>
+    <script>
+        if(!Kakao.isInitialized()){
+            Kakao.init("{{ "KAKAO_JAVASCRIPT_KEY"|get_env }}");
+        }
+
+        Kakao.Auth.authorize({
+            redirectUri: '{{ "HOST"|get_env }}{{ url_for('social.kakao.callback.index') }}'
+        });
+    </script>
+{% endblock %}

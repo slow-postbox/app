@@ -176,7 +176,7 @@ def login_required(f):
             user_id = session['user']['user_id']
         except KeyError:
             error_id = set_error_message(message="로그인이 필요합니다.")
-            return redirect(url_for("auth.login", error=error_id))
+            return redirect(url_for("auth.error", error=error_id))
 
         user = User.query.filter_by(
             id=user_id
@@ -185,7 +185,7 @@ def login_required(f):
         if user is None:
             del session['user']
             error_id = set_error_message(message="삭제된 계정입니다.")
-            return redirect(url_for("auth.sign_up", error=error_id))
+            return redirect(url_for("auth.error", error=error_id))
 
         history = LoginHistory.query.with_entities(
             LoginHistory.id
@@ -197,7 +197,7 @@ def login_required(f):
         if history is None:
             del session['user']
             error_id = set_error_message(message="로그인 기록이 없는 세션입니다.")
-            return redirect(url_for("auth.login", error=error_id))
+            return redirect(url_for("auth.error", error=error_id))
 
         session['admin'] = user.admin
 

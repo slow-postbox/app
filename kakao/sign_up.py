@@ -23,7 +23,7 @@ bp = Blueprint("sign_up", __name__, url_prefix="/sign-up")
 
 def to(message: str):
     error_id = set_error_message(message=message)
-    return redirect(url_for("auth.login", error=error_id))
+    return redirect(url_for("auth.error", error=error_id))
 
 
 @bp.get("/step1")
@@ -55,7 +55,7 @@ def step1():
     }
 
     return render_template(
-        "social/kakao/sign-up/step1.html",
+        "kakao/sign-up/step1.html",
         error=get_error_message()
     )
 
@@ -77,6 +77,7 @@ def step1_post():
         return _to(message="개인정보 처리방침에 동의해야 서비스를 이용 할 수 있습니다.")
 
     try:
+        id = session['social.kakao.id']
         email = session['social.kakao.email']
         version = session['social.kakao.version']
     except KeyError:
@@ -84,7 +85,8 @@ def step1_post():
 
     user = User()
     user.email = email
-    user.password = "social-login-account:kakao"
+    user.oauth = "kakao"
+    user.oauth_id = id
     user.admin = False
 
     user.tos = version['tos']

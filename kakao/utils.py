@@ -20,7 +20,8 @@ class KakaoAgreementRequired(Exception):
 
 
 class KakaoEmailVerifyRequired(Exception):
-    def __init__(self, email):
+    def __init__(self, id, email):
+        self.id = id
         self.email = email
         super().__init__()
 
@@ -46,7 +47,7 @@ def code_to_token(code: str) -> str:
         raise KakaoLoginFail
 
 
-def get_email_with_token(token: str) -> str:
+def get_email_with_token(token: str) -> tuple[int, str]:
     resp = post(
         url="https://kapi.kakao.com/v2/user/me",
         headers={
@@ -68,8 +69,9 @@ def get_email_with_token(token: str) -> str:
         raise KakaoAgreementRequired
 
     if kakao_account['is_email_valid'] is True and kakao_account['is_email_verified'] is True:
-        return kakao_account['email']
+        return json['id'], kakao_account['email']
 
     raise KakaoEmailVerifyRequired(
+        id=json['id'],
         email=kakao_account['email']
     )

@@ -9,7 +9,6 @@ from app import db
 from app.models import User
 from app.models import LoginHistory
 from app.models import Mail
-from app.models import PasswordReset
 from app.models import UserLock
 from app.utils import get_error_message
 from app.utils import set_error_message
@@ -50,25 +49,6 @@ def history(user: User):
     return render_template(
         "dashboard/history.html",
         histories=login_history,
-        reset=user.password.startswith( "social-login-account")
-    )
-
-
-@bp.get("/reset")
-@login_required
-def reset_history(user: User):
-    if user.password.startswith("social-login-account"):
-        return redirect(url_for("dashboard.index"))
-
-    pws = PasswordReset.query.filter_by(
-        owner_id=user.id,
-    ).order_by(
-        PasswordReset.id.desc()
-    ).all()
-
-    return render_template(
-        "dashboard/reset.html",
-        pws=pws,
     )
 
 
@@ -156,9 +136,6 @@ def quit_service_post(user: User):
         return to(message="계정 잠금 요청에 의해 해당 요청을 승인 할 수 없습니다.")
 
     LoginHistory.query.filter_by(
-        owner_id=user.id
-    ).delete()
-    PasswordReset.query.filter_by(
         owner_id=user.id
     ).delete()
 

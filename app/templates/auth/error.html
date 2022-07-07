@@ -1,0 +1,12 @@
+{% extends 'layout.html' %}
+{% block content %}
+<section class="section">
+    <div class="container">
+    {% if error is not none %}
+        <div class="notification is-danger">
+            {{ error }}
+        </div>
+    {% endif %}
+    </div>
+</section>
+{% endblock %}

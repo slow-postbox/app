@@ -13,19 +13,19 @@ from app.utils import test_email_with_dns
 from app.utils import login_block
 from app.models import User
 from app.models import LoginHistory
-from social.kakao.utils import code_to_token
-from social.kakao.utils import get_email_with_token
-from social.kakao.utils import KakaoLoginFail
-from social.kakao.utils import KakaoAuthFail
-from social.kakao.utils import KakaoAgreementRequired
-from social.kakao.utils import KakaoEmailVerifyRequired
+from kakao.utils import code_to_token
+from kakao.utils import get_email_with_token
+from kakao.utils import KakaoLoginFail
+from kakao.utils import KakaoAuthFail
+from kakao.utils import KakaoAgreementRequired
+from kakao.utils import KakaoEmailVerifyRequired
 
 bp = Blueprint("callback", __name__, url_prefix="/callback")
 
 
 def to(message: str):
     error_id = set_error_message(message=message)
-    return redirect(url_for("auth.login", error_social=error_id))
+    return redirect(url_for("auth.error", error_social=error_id))
 
 
 @bp.get("")
@@ -43,7 +43,7 @@ def index():
         return to(message="코드가 올바르지 않습니다.")
 
     try:
-        email = get_email_with_token(
+        id, email = get_email_with_token(
             token=token
         )
     except KakaoAuthFail:
@@ -59,14 +59,15 @@ def index():
 
     # search user
     user: User = User.query.filter_by(
-        email=email
+        oauth_id=id,
     ).first()
 
     if user is None:
+        session['social.kakao.id'] = id
         session['social.kakao.email'] = email
         return redirect(url_for("social.kakao.sign_up.step1"))
 
-    if user.password != "social-login-account:kakao":
+    if user.oauth != "kakao":
         return to(message="카카오 계정으로 가입된 계정이 아닙니다.")
 
     # update last login
