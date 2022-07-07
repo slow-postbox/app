@@ -1,4 +1,5 @@
 from os import environ
+from typing import Tuple
 
 from flask import url_for
 from requests import post
@@ -47,7 +48,7 @@ def code_to_token(code: str) -> str:
         raise KakaoLoginFail
 
 
-def get_email_with_token(token: str) -> tuple[int, str]:
+def get_email_with_token(token: str) -> Tuple[int, str]:
     resp = post(
         url="https://kapi.kakao.com/v2/user/me",
         headers={
