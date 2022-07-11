@@ -65,7 +65,8 @@ def index():
     if user is None:
         session['social.kakao.id'] = id
         session['social.kakao.email'] = email
-        return redirect(url_for("social.kakao.sign_up.step1"))
+        session['social.kakao.step'] = 2
+        return redirect(url_for("social.kakao.sign_up.step2"))
 
     if user.oauth != "kakao":
         return to(message="카카오 계정으로 가입된 계정이 아닙니다.")

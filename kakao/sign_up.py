@@ -17,6 +17,7 @@ from app.models import User
 from app.models import LoginHistory
 from app.models import TermsOfService
 from app.models import PrivacyPolicy
+from kakao.utils import verify_step
 
 bp = Blueprint("sign_up", __name__, url_prefix="/sign-up")
 
@@ -26,9 +27,10 @@ def to(message: str):
     return redirect(url_for("auth.error", error=error_id))
 
 
-@bp.get("/step1")
+@bp.get("/step2")
 @login_block
-def step1():
+@verify_step(2)
+def step2():
     try:
         email = session['social.kakao.email']
     except KeyError:
@@ -55,17 +57,18 @@ def step1():
     }
 
     return render_template(
-        "kakao/sign-up/step1.html",
+        "kakao/sign-up/step2.html",
         error=get_error_message()
     )
 
 
-@bp.post("/step1")
+@bp.post("/step2")
 @login_block
-def step1_post():
+@verify_step(2)
+def step2_post():
     def _to(message: str):
         error_id = set_error_message(message=message)
-        return redirect(url_for("social.kakao.sign_up.step1", error=error_id))
+        return redirect(url_for("social.kakao.sign_up.step2", error=error_id))
 
     tos_agree = request.form.get("tos_agree", None) == "on"
     privacy_agree = request.form.get("privacy_agree", None) == "on"
@@ -120,7 +123,10 @@ def step1_post():
         'history_id': history.id,
     }
 
+    del session['social.kakao.id']
     del session['social.kakao.email']
+    del session['social.kakao.step']
+    # used in step2
     del session['social.kakao.version']
 
     return redirect(url_for("dashboard.index"))
