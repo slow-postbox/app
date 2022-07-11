@@ -81,6 +81,15 @@ def get_email_with_token(token: str) -> Tuple[int, str]:
     )
 
 
+def unlink(token: str) -> None:
+    post(
+        url="https://kapi.kakao.com/v1/user/unlink",
+        headers={
+            "Authorization": token,
+        }
+    )
+
+
 def verify_step(step: int):
     def wrapper(f):
         @wraps(f)

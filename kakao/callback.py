@@ -23,13 +23,14 @@ from kakao.utils import KakaoLoginFail
 from kakao.utils import KakaoAuthFail
 from kakao.utils import KakaoAgreementRequired
 from kakao.utils import KakaoEmailVerifyRequired
+from kakao.utils import unlink
 
 bp = Blueprint("callback", __name__, url_prefix="/callback")
 
 
 def to(message: str):
     error_id = set_error_message(message=message)
-    return redirect(url_for("auth.error", error_social=error_id))
+    return redirect(url_for("auth.error", error=error_id))
 
 
 @bp.get("")
@@ -53,7 +54,8 @@ def index():
     except KakaoAuthFail:
         return to(message="카카오 로그인 요청이 올바르지 않습니다.")
     except KakaoAgreementRequired:
-        return "오류 / 이메일 동의하지 않음"
+        unlink(token=token)
+        return to(message="서비스 이용에 필수적인 이메일 제공을 동의하지 않았습니다. 계정 연결이 취소됩니다.")
     except KakaoEmailVerifyRequired as e:
         code = Code()
         code.email = e.email
