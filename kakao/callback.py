@@ -1,4 +1,6 @@
 from datetime import datetime
+from random import choices
+from string import hexdigits
 
 from flask import Blueprint
 from flask import session
@@ -13,6 +15,8 @@ from app.utils import test_email_with_dns
 from app.utils import login_block
 from app.models import User
 from app.models import LoginHistory
+from app.models import Code
+from mail.utils import send_token
 from kakao.utils import code_to_token
 from kakao.utils import get_email_with_token
 from kakao.utils import KakaoLoginFail
@@ -51,7 +55,25 @@ def index():
     except KakaoAgreementRequired:
         return "오류 / 이메일 동의하지 않음"
     except KakaoEmailVerifyRequired as e:
-        return f"오류 / 이메일 인증이 필요함 / {e.email}"
+        code = Code()
+        code.email = e.email
+        code.code = "".join(choices(hexdigits, k=4)) + "-" + "".join(choices(hexdigits, k=4))
+        code.ip = get_ip()
+
+        db.session.add(code)
+        db.session.commit()
+
+        send_token(
+            email=e.email,
+            code=code.code,
+            ip=get_ip()
+        )
+
+        session['social.kakao.id'] = e.id
+        session['social.kakao.email'] = e.email
+        session['social.kakao.step'] = 1
+        session['social.kakao.code_id'] = code.id
+        return redirect(url_for("social.kakao.sign_up.step1"))
 
     result = test_email_with_dns(email=email)
     if len(result) != 0:

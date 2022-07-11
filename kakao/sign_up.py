@@ -1,3 +1,4 @@
+from os import environ
 from datetime import datetime
 
 from flask import Blueprint
@@ -15,6 +16,7 @@ from app.utils import set_error_message
 from app.utils import login_block
 from app.models import User
 from app.models import LoginHistory
+from app.models import Code
 from app.models import TermsOfService
 from app.models import PrivacyPolicy
 from kakao.utils import verify_step
@@ -25,6 +27,58 @@ bp = Blueprint("sign_up", __name__, url_prefix="/sign-up")
 def to(message: str):
     error_id = set_error_message(message=message)
     return redirect(url_for("auth.error", error=error_id))
+
+
+@bp.get("/step1")
+@login_block
+@verify_step(1)
+def step1():
+    email = session['social.kakao.email']
+    code_id = session['social.kakao.code_id']
+
+    code: Code = Code.query.filter_by(
+        id=code_id,
+        email=email
+    ).first()
+
+    if code is None:
+        return to(message="만료된 이메일 인증 요청입니다. 다시 시도해주세요.")
+
+    if code.is_expired() or code.is_used():
+        return to(message="만료된 이메일 인증 요청입니다. 다시 시도해주세요.")
+
+    return render_template(
+        "kakao/sign-up/step1.html",
+        error=get_error_message(),
+        email=environ['SMTP_USER']
+    )
+
+
+@bp.post("/step1")
+@verify_step(1)
+def step1_post():
+    email = session['social.kakao.email']
+    code_id = session['social.kakao.code_id']
+
+    code: Code = Code.query.filter_by(
+        id=code_id,
+        email=email
+    ).first()
+
+    if code is None:
+        return to(message="만료된 이메일 인증 요청입니다. 다시 시도해주세요.")
+
+    if code.is_expired() or code.is_used():
+        return to(message="만료된 이메일 인증 요청입니다. 다시 시도해주세요.")
+
+    if code.code == request.form.get("code", "undefined"):
+        session['social.kakao.step'] = 2
+        # used in step1
+        del session['social.kakao.code_id']
+        return redirect(url_for("social.kakao.sign_up.step2"))
+
+    error_id = set_error_message(message="인증 코드가 올바르지 않습니다.")
+    return redirect(url_for("social.kakao.sign_up.step1", error=error_id))
 
 
 @bp.get("/step2")
