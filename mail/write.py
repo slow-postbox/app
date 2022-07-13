@@ -154,6 +154,10 @@ def create_new_post(user: User):
             content=content
         )
     except (ValueError, Exception) as e:
+        # remove mail when fail to encrypt
+        db.session.delete(mail)
+        db.session.commit()
+
         logger.exception(e)
         return error(message="메일을 저장하는데 오류가 발생했습니다.")
 
