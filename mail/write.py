@@ -156,7 +156,7 @@ def create_new_post(user: User):
     return render_template(
         "mail/write/clear-storage.html",
         mail_id='new',
-        url=url_for("mail.write.edit", mail_id=mail.id),
+        url=url_for("dashboard.index"),
     )
 
 
@@ -275,7 +275,7 @@ def edit_post(user: User, mail: Mail, mail_id: int):
     return render_template(
         "mail/write/clear-storage.html",
         mail_id=mail_id,
-        url=url_for("mail.write.edit", mail_id=mail_id),
+        url=url_for("dashboard.index"),
     )
 
 
