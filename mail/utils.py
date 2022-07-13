@@ -43,7 +43,9 @@ def fetch_key_store(owner_id: int, mail_id: int) -> KeyStore:
             owner_id=owner_id,
             mail_id=mail_id
         ),
-        headers=get_headers()
+        headers=get_headers(),
+        timeout=1,
+
     )
 
     if resp.status_code == 404:
@@ -66,7 +68,8 @@ def create_key_store(owner_id: int, mail_id: int) -> KeyStore:
             owner_id=owner_id,
             mail_id=mail_id
         ),
-        headers=get_headers()
+        headers=get_headers(),
+        timeout=1
     )
 
     json = resp.json()
@@ -83,7 +86,8 @@ def delete_key_store(owner_id: int, mail_id: int) -> None:
             owner_id=owner_id,
             mail_id=mail_id,
         ),
-        headers=get_headers()
+        headers=get_headers(),
+        timeout=1
     )
 
 

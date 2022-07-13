@@ -1,5 +1,6 @@
 from datetime import datetime
 from datetime import timedelta
+from logging import getLogger
 
 from flask import Blueprint
 from flask import g
@@ -24,6 +25,7 @@ from mail.utils import delete_key_store
 from mail.utils import check_user_lock
 
 bp = Blueprint("write", __name__, url_prefix="/")
+logger = getLogger()
 
 # 최소 1주일
 MIN_DAYS = 7
@@ -145,11 +147,15 @@ def create_new_post(user: User):
     db.session.commit()
 
     # encrypt after mail created
-    mail.content = encrypt_mail(
-        owner_id=user.id,
-        mail_id=mail.id,
-        content=content
-    )
+    try:
+        mail.content = encrypt_mail(
+            owner_id=user.id,
+            mail_id=mail.id,
+            content=content
+        )
+    except (ValueError, Exception) as e:
+        logger.exception(e)
+        return error(message="메일을 저장하는데 오류가 발생했습니다.")
 
     db.session.commit()
 
@@ -165,11 +171,17 @@ def create_new_post(user: User):
 @fetch_mail
 def edit(user: User, mail: Mail, mail_id: int):
     g.editor_css = True
-    mail.content = decrypt_mail(
-        owner_id=user.id,
-        mail_id=mail_id,
-        result=mail.content
-    )
+
+    try:
+        mail.content = decrypt_mail(
+            owner_id=user.id,
+            mail_id=mail_id,
+            result=mail.content
+        )
+    except (ValueError, Exception) as e:
+        logger.exception(e)
+        error_id = set_error_message(message="메일을 불러오는데 오류가 발생했습니다.")
+        return redirect(url_for("dashboard.index", error=error_id))
 
     return render_template(
         "mail/write/edit.html",
@@ -260,11 +272,16 @@ def edit_post(user: User, mail: Mail, mail_id: int):
 
     mail.lock = True if request.form.get("lock", "false") == 'true' else False
 
-    mail.content = encrypt_mail(
-        owner_id=user.id,
-        mail_id=mail_id,
-        content=mail.content
-    )
+    try:
+        mail.content = encrypt_mail(
+            owner_id=user.id,
+            mail_id=mail_id,
+            content=mail.content
+        )
+    except (ValueError, Exception) as e:
+        logger.exception(e)
+        error_id = set_error_message(message=["메일을 저장하는데 문제가 발생했습니다."])
+        return redirect(url_for("mail.write.edit", mail_id=mail_id, error=error_id))
 
     db.session.commit()
 

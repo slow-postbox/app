@@ -1,3 +1,5 @@
+from logging import getLogger
+
 from flask import Blueprint
 from flask import redirect
 from flask import url_for
@@ -13,6 +15,7 @@ from app.utils import login_required
 from mail.crypto import decrypt_mail
 
 bp = Blueprint("read", __name__, url_prefix="/read")
+logger = getLogger()
 
 
 @bp.get("/<int:mail_id>")
@@ -39,11 +42,16 @@ def detail(user: User, mail_id: int):
         mail.read = True
         db.session.commit()
 
-    mail.content = decrypt_mail(
-        owner_id=user.id,
-        mail_id=mail_id,
-        result=mail.content
-    )
+    try:
+        mail.content = decrypt_mail(
+            owner_id=user.id,
+            mail_id=mail_id,
+            result=mail.content
+        )
+    except (ValueError, Exception) as e:
+        logger.exception(e)
+        error_id = set_error_message("메일을 불러오는데 오류가 발생했습니다.")
+        return redirect(url_for("dashboard.index", error=error_id))
 
     return render_template(
         "mail/read/detail.html",
