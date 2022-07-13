@@ -1,15 +1,12 @@
-from collections import namedtuple
-
 from Crypto.Cipher import AES
 from Crypto.Util.Padding import pad
 from Crypto.Util.Padding import unpad
 
+from mail.utils import KeyStore
 from mail.utils import fetch_key_store
 
-Key = namedtuple("Key", ['key', 'iv'])
 
-
-def encrypt(key_store: Key, content: str) -> bytes:
+def encrypt(key_store: KeyStore, content: str) -> bytes:
     cipher = AES.new(
         key=key_store.key,
         iv=key_store.iv,
@@ -25,7 +22,7 @@ def encrypt(key_store: Key, content: str) -> bytes:
     )
 
 
-def decrypt(key_store: Key, result: bytes) -> str:
+def decrypt(key_store: KeyStore, result: bytes) -> str:
     cipher = AES.new(
         key=key_store.key,
         mode=AES.MODE_CBC,
@@ -46,10 +43,7 @@ def encrypt_mail(owner_id: int, mail_id: int, content: str) -> str:
     )
 
     return encrypt(
-        key_store=Key(
-            key=bytes.fromhex(key_store.key),
-            iv=bytes.fromhex(key_store.iv)
-        ),
+        key_store=key_store,
         content=content
     ).hex()
 
@@ -61,9 +55,6 @@ def decrypt_mail(owner_id: int, mail_id: int, result: str) -> str:
     )
 
     return decrypt(
-        key_store=Key(
-            key=bytes.fromhex(key_store.key),
-            iv=bytes.fromhex(key_store.iv)
-        ),
+        key_store=key_store,
         result=bytes.fromhex(result)
     )

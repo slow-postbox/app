@@ -17,8 +17,8 @@ send_token = _send_token
 
 
 class KeyStore(NamedTuple):
-    key: str
-    iv: str
+    key: bytes
+    iv: bytes
 
 
 def get_headers() -> dict:
@@ -55,8 +55,8 @@ def fetch_key_store(owner_id: int, mail_id: int) -> KeyStore:
     json = resp.json()
 
     return KeyStore(
-        key=json['key'],
-        iv=json['iv']
+        key=bytes.fromhex(json['key']),
+        iv=bytes.fromhex(json['iv'])
     )
 
 
@@ -72,8 +72,8 @@ def create_key_store(owner_id: int, mail_id: int) -> KeyStore:
     json = resp.json()
 
     return KeyStore(
-        key=json['key'],
-        iv=json['iv']
+        key=bytes.fromhex(json['key']),
+        iv=bytes.fromhex(json['iv'])
     )
 
 
